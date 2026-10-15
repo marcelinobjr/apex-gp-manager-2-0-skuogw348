@@ -1,0 +1,25 @@
+﻿manager_id,slot,modifier_target,modifier_value,modifier_kind,unit,mechanic_status,source_image
+mgr_0001,1,Estratégia,10,bonus,profile_modifier_points,pending_gameplay_mapping,01-Estrategista(1).jpg
+mgr_0001,2,Finanças,8,bonus,profile_modifier_points,pending_gameplay_mapping,01-Estrategista(1).jpg
+mgr_0001,3,Negociação,8,bonus,profile_modifier_points,pending_gameplay_mapping,01-Estrategista(1).jpg
+mgr_0001,4,Gestão de pessoas,-5,penalty,profile_modifier_points,pending_gameplay_mapping,01-Estrategista(1).jpg
+mgr_0002,1,Pilotos,10,bonus,profile_modifier_points,pending_gameplay_mapping,02-Competidor.jpg
+mgr_0002,2,Desempenho em corrida,8,bonus,profile_modifier_points,pending_gameplay_mapping,02-Competidor.jpg
+mgr_0002,3,Motivação da equipe,5,bonus,profile_modifier_points,pending_gameplay_mapping,02-Competidor.jpg
+mgr_0002,4,Relacionamento político,-5,penalty,profile_modifier_points,pending_gameplay_mapping,02-Competidor.jpg
+mgr_0003,1,Desenvolvimento (P&D),12,bonus,profile_modifier_points,pending_gameplay_mapping,03-Engenheiro.jpg
+mgr_0003,2,Unidade de potência,10,bonus,profile_modifier_points,pending_gameplay_mapping,03-Engenheiro.jpg
+mgr_0003,3,Confiabilidade,8,bonus,profile_modifier_points,pending_gameplay_mapping,03-Engenheiro.jpg
+mgr_0003,4,Gestão de pilotos,-5,penalty,profile_modifier_points,pending_gameplay_mapping,03-Engenheiro.jpg
+mgr_0004,1,Gestão de pessoas,10,bonus,profile_modifier_points,pending_gameplay_mapping,04-Gestor.jpg
+mgr_0004,2,Estabilidade da equipe,8,bonus,profile_modifier_points,pending_gameplay_mapping,04-Gestor.jpg
+mgr_0004,3,Desenvolvimento,6,bonus,profile_modifier_points,pending_gameplay_mapping,04-Gestor.jpg
+mgr_0004,4,Tolerância a riscos,-5,penalty,profile_modifier_points,pending_gameplay_mapping,04-Gestor.jpg
+mgr_0005,1,Patrocínio e receita,12,bonus,profile_modifier_points,pending_gameplay_mapping,05-Empresário.jpg
+mgr_0005,2,Contratação de talentos,8,bonus,profile_modifier_points,pending_gameplay_mapping,05-Empresário.jpg
+mgr_0005,3,Marketing e exposição,8,bonus,profile_modifier_points,pending_gameplay_mapping,05-Empresário.jpg
+mgr_0005,4,Desenvolvimento técnico,-5,penalty,profile_modifier_points,pending_gameplay_mapping,05-Empresário.jpg
+mgr_0006,1,Talentos e contratações,10,bonus,profile_modifier_points,pending_gameplay_mapping,06-Lider.jpg
+mgr_0006,2,Patrocínio e receita,10,bonus,profile_modifier_points,pending_gameplay_mapping,06-Lider.jpg
+mgr_0006,3,Organização e processos,6,bonus,profile_modifier_points,pending_gameplay_mapping,06-Lider.jpg
+mgr_0006,4,Paciência com resultados,-5,penalty,profile_modifier_points,pending_gameplay_mapping,06-Lider.jpg
