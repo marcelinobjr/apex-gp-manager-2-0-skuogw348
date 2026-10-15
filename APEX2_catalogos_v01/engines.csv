@@ -1,0 +1,12 @@
+﻿engine_id,display_name,country_code,power,reliability,efficiency,development_potential,cost_tier,logo_asset_id,logo_file_path,active,notes
+ENG-0001,Audi,DE,84,80,82,88,medium,,motores/motor_001.jpg,true,Atributos e custo-base extraidos de Motores.pdf; integracao e risco excluidos do modelo simplificado.
+ENG-0002,Ferrari,IT,89,77,79,85,high,,motores/motor_002.jpg,true,Atributos e custo-base extraidos de Motores.pdf; integracao e risco excluidos do modelo simplificado.
+ENG-0003,Ford,US,80,74,78,79,low,,motores/motor_003.jpg,true,Atributos e custo-base extraidos de Motores.pdf; integracao e risco excluidos do modelo simplificado.
+ENG-0004,Honda,JP,88,76,81,90,medium,,motores/motor_004.jpg,true,Atributos e custo-base extraidos de Motores.pdf; integracao e risco excluidos do modelo simplificado.
+ENG-0005,Mercedes,DE,86,88,87,82,high,,motores/motor_005.jpg,true,Atributos e custo-base extraidos de Motores.pdf; integracao e risco excluidos do modelo simplificado.
+ENG-0006,Renault,FR,83,81,82,84,medium,,motores/motor_006.jpg,true,"PROPOSTA DE BALANCEAMENTO, nao informacao oficial; necessita aprovacao do usuario."
+ENG-0007,Toyota,JP,85,86,85,86,high,,motores/motor_007.jpg,true,"PROPOSTA DE BALANCEAMENTO, nao informacao oficial; necessita aprovacao do usuario."
+ENG-0008,Porsche,DE,87,85,84,89,high,,motores/motor_008.jpg,true,"PROPOSTA DE BALANCEAMENTO, nao informacao oficial; necessita aprovacao do usuario."
+ENG-0009,BMW,DE,86,83,81,85,high,,motores/motor_009.jpg,true,"PROPOSTA DE BALANCEAMENTO, nao informacao oficial; necessita aprovacao do usuario."
+ENG-0010,Lamborghini,IT,88,72,77,92,high,,motores/motor_010.jpg,true,"PROPOSTA DE BALANCEAMENTO, nao informacao oficial; necessita aprovacao do usuario."
+ENG-0011,Peugeot,FR,81,78,80,83,low,,motores/motor_011.jpg,true,"PROPOSTA DE BALANCEAMENTO, nao informacao oficial; necessita aprovacao do usuario."
