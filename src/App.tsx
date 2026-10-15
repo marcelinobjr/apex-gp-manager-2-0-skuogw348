@@ -16,6 +16,7 @@ import {
   StructuresPage,
   TeamsPage,
 } from '@/pages/GamePages'
+import CreateCareerWizard from '@/pages/CreateCareerPage'
 
 const Protected = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute>{children}</ProtectedRoute>
@@ -41,6 +42,14 @@ export default function App() {
                 element={
                   <Protected>
                     <Dashboard />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/carreira/nova"
+                element={
+                  <Protected>
+                    <CreateCareerWizard />
                   </Protected>
                 }
               />

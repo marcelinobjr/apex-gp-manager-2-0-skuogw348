@@ -4,18 +4,18 @@ APEX GP Manager 2.0 · 14/10/2026
 
 ## 1. Resumo
 
-| Item | Resultado |
-|---|---|
-| Circuitos cadastrados (1 linha por configuração) | **43** |
-| SVGs encontrados e vinculados (1:1, sem repetição) | **43 / 43** |
-| SVGs com percurso contínuo utilizável (`track_path_id = track`) | **43 / 43** |
-| Com `race_direction` proposto | **36** (34 `forward`, 2 `reverse`) |
-| Com linha de chegada (`start_finish_progress`) | **1** (CIR-0021, piloto, aguardando aprovação) |
-| Com caminho de boxes | **1** (CIR-0021, piloto, aguardando aprovação) |
-| **Prontos para animação completa** | **1 em aprovação** (CIR-0021). Os outros 42 dependem de largada/chegada e boxes |
-| Com extensão, altitude, exigências, perda de pit e volta de referência preenchidas | **24** |
-| Com exigências qualitativas propostas | **32** |
-| Sem nenhuma exigência técnica (sem F1 entre 2014 e 2026) | **11** |
+| Item                                                                               | Resultado                                                                       |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Circuitos cadastrados (1 linha por configuração)                                   | **43**                                                                          |
+| SVGs encontrados e vinculados (1:1, sem repetição)                                 | **43 / 43**                                                                     |
+| SVGs com percurso contínuo utilizável (`track_path_id = track`)                    | **43 / 43**                                                                     |
+| Com `race_direction` proposto                                                      | **36** (34 `forward`, 2 `reverse`)                                              |
+| Com linha de chegada (`start_finish_progress`)                                     | **1** (CIR-0021, piloto, aguardando aprovação)                                  |
+| Com caminho de boxes                                                               | **1** (CIR-0021, piloto, aguardando aprovação)                                  |
+| **Prontos para animação completa**                                                 | **1 em aprovação** (CIR-0021). Os outros 42 dependem de largada/chegada e boxes |
+| Com extensão, altitude, exigências, perda de pit e volta de referência preenchidas | **24**                                                                          |
+| Com exigências qualitativas propostas                                              | **32**                                                                          |
+| Sem nenhuma exigência técnica (sem F1 entre 2014 e 2026)                           | **11**                                                                          |
 
 Arquivos de entrada verificados: `CSV/circuits.csv` (modelo só com cabeçalho, 9 campos preservados), `CSV/assets_manifest.csv` (só cabeçalho, sem `asset_id` para vincular) e os 43 arquivos em `circuitos/svg/`. O `calendario_f1_2026.pdf` **não existe** no projeto. Os PDFs de documentação (Documento-Base ADM, Páginas e Subpáginas, Diagnóstico) não trazem dados técnicos de circuitos. O item 1.3.7.2 "Traçado, largada e sentido" do ADM é o lugar natural para fechar as pendências gráficas.
 
@@ -42,51 +42,51 @@ Constatações gerais:
 
 Legenda: **Contínuo** = percurso contínuo utilizável · **Passo** = passo máximo relativo (1,000 = contínuo) · **Desvio** = geometria × extensão cadastrada · **Sentido** = `race_direction`. Em todos: linha de chegada **não marcada** e boxes **ausentes**.
 
-| ID | SVG | Contínuo | Comprimento (px) | Passo | Interseções | Desvio | Sentido | Pendências específicas |
-|---|---|---|---|---|---|---|---|---|
-| CIR-0001 | `circuitos/svg/01-Australia.svg` | sim | 3677.1 | 1.000 | 0 | -0.4% | forward | — |
-| CIR-0002 | `circuitos/svg/02-China.svg` | sim | 4946.5 | 1.000 | 0 | -0.3% | forward | — |
-| CIR-0003 | `circuitos/svg/03-Japao.svg` | sim | 3985.6 | 1.000 | 1 | -0.1% | — | race_direction: traçado em oito, orientação não dedutível pela área |
-| CIR-0004 | `circuitos/svg/04-Bahrein.svg` | sim | 5470.9 | 1.000 | 0 | -0.2% | forward | — |
-| CIR-0005 | `circuitos/svg/05-Arabia_Saudita.svg` | sim | 3360.7 | 1.000 | 0 | -0.1% | forward | — |
-| CIR-0006 | `circuitos/svg/06-Miami.svg` | sim | 5176.6 | 1.000 | 0 | +0.0% | forward | — |
-| CIR-0007 | `circuitos/svg/07-Canada.svg` | sim | 3370.4 | 1.000 | 0 | -0.4% | forward | — |
-| CIR-0008 | `circuitos/svg/08-Monaco.svg` | sim | 4229.8 | 1.000 | 0 | -0.6% | forward | — |
-| CIR-0009 | `circuitos/svg/09-Barcelona.svg` | sim | 4767.2 | 1.000 | 0 | -0.1% | forward | — |
-| CIR-0010 | `circuitos/svg/10-Madrid.svg` | sim | 3910.2 | 1.000 | 0 | -1.1% | — | circuito novo: características dependem de dados de corrida; race_direction: sentido de corrida não confirmado |
-| CIR-0011 | `circuitos/svg/11-Austria.svg` | sim | 4406.9 | 1.000 | 0 | -0.5% | forward | — |
-| CIR-0012 | `circuitos/svg/12-Silverstone.svg` | sim | 4496.0 | 1.000 | 0 | -0.5% | forward | — |
-| CIR-0013 | `circuitos/svg/13-Belgica.svg` | sim | 4389.4 | 1.000 | 0 | -0.7% | forward | — |
-| CIR-0014 | `circuitos/svg/14-Hungria.svg` | sim | 3866.3 | 1.000 | 0 | -0.4% | forward | — |
-| CIR-0015 | `circuitos/svg/15-Holanda.svg` | sim | 4234.6 | 1.000 | 0 | -0.3% | forward | — |
-| CIR-0016 | `circuitos/svg/16-Monza.svg` | sim | 3521.6 | 1.000 | 0 | -0.5% | forward | — |
-| CIR-0017 | `circuitos/svg/17-Azerbaijao.svg` | sim | 3620.1 | 1.000 | 0 | -1.2% | forward | — |
-| CIR-0018 | `circuitos/svg/18-Singapura.svg` | sim | 4582.1 | 1.000 | 0 | +0.0% | reverse | — |
-| CIR-0019 | `circuitos/svg/19-USA.svg` | sim | 4367.4 | 1.000 | 0 | -0.0% | forward | — |
-| CIR-0020 | `circuitos/svg/20-Mexico.svg` | sim | 3831.0 | 1.000 | 0 | -0.2% | forward | — |
-| CIR-0021 | `circuitos/svg/21-Brasil.svg` (v2) | sim | 5367.3 | 1.000 | 0 | -0.6% | forward (DOC-osm) | Piloto SVG-INTERLAGOS-01: chegada 0.98566, path#pit 0.89824→0.22959, aguardando aprovação |
-| CIR-0022 | `circuitos/svg/22-Las_Vegas.svg` | sim | 4191.6 | 1.000 | 0 | +0.0% | forward | — |
-| CIR-0023 | `circuitos/svg/23-Qatar.svg` | sim | 4556.1 | 1.000 | 0 | +0.5% | forward | — |
-| CIR-0024 | `circuitos/svg/24-Abu_Dhabi.svg` | sim | 4457.9 | 1.000 | 0 | -0.1% | forward | — |
-| CIR-0025 | `circuitos/svg/25-Imola.svg` | sim | 3604.3 | 1.000 | 0 | -0.3% | forward | — |
-| CIR-0026 | `circuitos/svg/26-Portimao.svg` | sim | 5426.8 | 1.000 | 0 | -0.4% | forward | — |
-| CIR-0027 | `circuitos/svg/27-Istambul.svg` | sim | 4213.1 | 1.000 | 0 | -0.7% | forward | — |
-| CIR-0028 | `circuitos/svg/28-Sepang.svg` | sim | 4940.5 | 1.000 | 0 | +0.0% | forward | — |
-| CIR-0029 | `circuitos/svg/29-Nurburgring.svg` | sim | 4129.5 | 1.000 | 0 | -0.5% | forward | — |
-| CIR-0030 | `circuitos/svg/30-Hockenheim.svg` | sim | 4236.0 | 1.000 | 0 | -0.6% | forward | — |
-| CIR-0031 | `circuitos/svg/31-Paul_Ricard.svg` | sim | 3644.7 | 1.000 | 0 | -0.5% | reverse | — |
-| CIR-0032 | `circuitos/svg/32-Magny_Cours.svg` | sim | 5499.3 | 1.000 | 0 | +0.6% | forward | — |
-| CIR-0033 | `circuitos/svg/33-Adelaide.svg` | sim | 3864.6 | 1.000 | 0 | +1.3% | — | decidir se o jogo usa o traçado Adelaide 500 ou exige redesenho do GP F1; race_direction: sentido de corrida não confirmado |
-| CIR-0034 | `circuitos/svg/34-Estoril.svg` | sim | 5104.2 | 1.000 | 0 | -4.5% | forward | geometria -4.5% vs extensão: confirmar variante do traçado |
-| CIR-0035 | `circuitos/svg/35-Kyalami.svg` | sim | 4314.3 | 1.000 | 0 | -0.4% | — | traçado do SVG não é o da F1 1992–93; race_direction: sentido de corrida não confirmado |
-| CIR-0036 | `circuitos/svg/36-Jerez.svg` | sim | 4484.7 | 1.000 | 0 | -0.3% | forward | — |
-| CIR-0037 | `circuitos/svg/37-Mugello.svg` | sim | 5162.4 | 1.000 | 0 | -0.4% | forward | — |
-| CIR-0038 | `circuitos/svg/38-Indianapolis.svg` | sim | 3802.8 | 1.000 | 0 | -2.9% | forward | geometria -2.9% vs extensão: confirmar variante do traçado; confirmar variante (F1 2000–2007 x misto posterior) |
-| CIR-0039 | `circuitos/svg/39-Fuji.svg` | sim | 3967.5 | 1.000 | 0 | -0.5% | forward | — |
-| CIR-0040 | `circuitos/svg/40-Jacarepagua.svg` | sim | 5727.9 | 1.000 | 0 | -1.5% | — | race_direction: sentido de corrida não confirmado |
-| CIR-0041 | `circuitos/svg/41-Brasilia.svg` | sim | 5738.8 | 1.000 | 0 | -2.4% | — | geometria -2.4% vs extensão: confirmar variante do traçado; race_direction: sentido de corrida não confirmado |
-| CIR-0042 | `circuitos/svg/42-Goiania.svg` | sim | 4627.7 | 1.000 | 0 | -0.4% | — | race_direction: sentido de corrida não confirmado |
-| CIR-0043 | `circuitos/svg/43-Sochi.svg` | sim | 4080.4 | 1.000 | 0 | -0.4% | forward | — |
+| ID       | SVG                                   | Contínuo | Comprimento (px) | Passo | Interseções | Desvio | Sentido           | Pendências específicas                                                                                                      |
+| -------- | ------------------------------------- | -------- | ---------------- | ----- | ----------- | ------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| CIR-0001 | `circuitos/svg/01-Australia.svg`      | sim      | 3677.1           | 1.000 | 0           | -0.4%  | forward           | —                                                                                                                           |
+| CIR-0002 | `circuitos/svg/02-China.svg`          | sim      | 4946.5           | 1.000 | 0           | -0.3%  | forward           | —                                                                                                                           |
+| CIR-0003 | `circuitos/svg/03-Japao.svg`          | sim      | 3985.6           | 1.000 | 1           | -0.1%  | —                 | race_direction: traçado em oito, orientação não dedutível pela área                                                         |
+| CIR-0004 | `circuitos/svg/04-Bahrein.svg`        | sim      | 5470.9           | 1.000 | 0           | -0.2%  | forward           | —                                                                                                                           |
+| CIR-0005 | `circuitos/svg/05-Arabia_Saudita.svg` | sim      | 3360.7           | 1.000 | 0           | -0.1%  | forward           | —                                                                                                                           |
+| CIR-0006 | `circuitos/svg/06-Miami.svg`          | sim      | 5176.6           | 1.000 | 0           | +0.0%  | forward           | —                                                                                                                           |
+| CIR-0007 | `circuitos/svg/07-Canada.svg`         | sim      | 3370.4           | 1.000 | 0           | -0.4%  | forward           | —                                                                                                                           |
+| CIR-0008 | `circuitos/svg/08-Monaco.svg`         | sim      | 4229.8           | 1.000 | 0           | -0.6%  | forward           | —                                                                                                                           |
+| CIR-0009 | `circuitos/svg/09-Barcelona.svg`      | sim      | 4767.2           | 1.000 | 0           | -0.1%  | forward           | —                                                                                                                           |
+| CIR-0010 | `circuitos/svg/10-Madrid.svg`         | sim      | 3910.2           | 1.000 | 0           | -1.1%  | —                 | circuito novo: características dependem de dados de corrida; race_direction: sentido de corrida não confirmado              |
+| CIR-0011 | `circuitos/svg/11-Austria.svg`        | sim      | 4406.9           | 1.000 | 0           | -0.5%  | forward           | —                                                                                                                           |
+| CIR-0012 | `circuitos/svg/12-Silverstone.svg`    | sim      | 4496.0           | 1.000 | 0           | -0.5%  | forward           | —                                                                                                                           |
+| CIR-0013 | `circuitos/svg/13-Belgica.svg`        | sim      | 4389.4           | 1.000 | 0           | -0.7%  | forward           | —                                                                                                                           |
+| CIR-0014 | `circuitos/svg/14-Hungria.svg`        | sim      | 3866.3           | 1.000 | 0           | -0.4%  | forward           | —                                                                                                                           |
+| CIR-0015 | `circuitos/svg/15-Holanda.svg`        | sim      | 4234.6           | 1.000 | 0           | -0.3%  | forward           | —                                                                                                                           |
+| CIR-0016 | `circuitos/svg/16-Monza.svg`          | sim      | 3521.6           | 1.000 | 0           | -0.5%  | forward           | —                                                                                                                           |
+| CIR-0017 | `circuitos/svg/17-Azerbaijao.svg`     | sim      | 3620.1           | 1.000 | 0           | -1.2%  | forward           | —                                                                                                                           |
+| CIR-0018 | `circuitos/svg/18-Singapura.svg`      | sim      | 4582.1           | 1.000 | 0           | +0.0%  | reverse           | —                                                                                                                           |
+| CIR-0019 | `circuitos/svg/19-USA.svg`            | sim      | 4367.4           | 1.000 | 0           | -0.0%  | forward           | —                                                                                                                           |
+| CIR-0020 | `circuitos/svg/20-Mexico.svg`         | sim      | 3831.0           | 1.000 | 0           | -0.2%  | forward           | —                                                                                                                           |
+| CIR-0021 | `circuitos/svg/21-Brasil.svg` (v2)    | sim      | 5367.3           | 1.000 | 0           | -0.6%  | forward (DOC-osm) | Piloto SVG-INTERLAGOS-01: chegada 0.98566, path#pit 0.89824→0.22959, aguardando aprovação                                   |
+| CIR-0022 | `circuitos/svg/22-Las_Vegas.svg`      | sim      | 4191.6           | 1.000 | 0           | +0.0%  | forward           | —                                                                                                                           |
+| CIR-0023 | `circuitos/svg/23-Qatar.svg`          | sim      | 4556.1           | 1.000 | 0           | +0.5%  | forward           | —                                                                                                                           |
+| CIR-0024 | `circuitos/svg/24-Abu_Dhabi.svg`      | sim      | 4457.9           | 1.000 | 0           | -0.1%  | forward           | —                                                                                                                           |
+| CIR-0025 | `circuitos/svg/25-Imola.svg`          | sim      | 3604.3           | 1.000 | 0           | -0.3%  | forward           | —                                                                                                                           |
+| CIR-0026 | `circuitos/svg/26-Portimao.svg`       | sim      | 5426.8           | 1.000 | 0           | -0.4%  | forward           | —                                                                                                                           |
+| CIR-0027 | `circuitos/svg/27-Istambul.svg`       | sim      | 4213.1           | 1.000 | 0           | -0.7%  | forward           | —                                                                                                                           |
+| CIR-0028 | `circuitos/svg/28-Sepang.svg`         | sim      | 4940.5           | 1.000 | 0           | +0.0%  | forward           | —                                                                                                                           |
+| CIR-0029 | `circuitos/svg/29-Nurburgring.svg`    | sim      | 4129.5           | 1.000 | 0           | -0.5%  | forward           | —                                                                                                                           |
+| CIR-0030 | `circuitos/svg/30-Hockenheim.svg`     | sim      | 4236.0           | 1.000 | 0           | -0.6%  | forward           | —                                                                                                                           |
+| CIR-0031 | `circuitos/svg/31-Paul_Ricard.svg`    | sim      | 3644.7           | 1.000 | 0           | -0.5%  | reverse           | —                                                                                                                           |
+| CIR-0032 | `circuitos/svg/32-Magny_Cours.svg`    | sim      | 5499.3           | 1.000 | 0           | +0.6%  | forward           | —                                                                                                                           |
+| CIR-0033 | `circuitos/svg/33-Adelaide.svg`       | sim      | 3864.6           | 1.000 | 0           | +1.3%  | —                 | decidir se o jogo usa o traçado Adelaide 500 ou exige redesenho do GP F1; race_direction: sentido de corrida não confirmado |
+| CIR-0034 | `circuitos/svg/34-Estoril.svg`        | sim      | 5104.2           | 1.000 | 0           | -4.5%  | forward           | geometria -4.5% vs extensão: confirmar variante do traçado                                                                  |
+| CIR-0035 | `circuitos/svg/35-Kyalami.svg`        | sim      | 4314.3           | 1.000 | 0           | -0.4%  | —                 | traçado do SVG não é o da F1 1992–93; race_direction: sentido de corrida não confirmado                                     |
+| CIR-0036 | `circuitos/svg/36-Jerez.svg`          | sim      | 4484.7           | 1.000 | 0           | -0.3%  | forward           | —                                                                                                                           |
+| CIR-0037 | `circuitos/svg/37-Mugello.svg`        | sim      | 5162.4           | 1.000 | 0           | -0.4%  | forward           | —                                                                                                                           |
+| CIR-0038 | `circuitos/svg/38-Indianapolis.svg`   | sim      | 3802.8           | 1.000 | 0           | -2.9%  | forward           | geometria -2.9% vs extensão: confirmar variante do traçado; confirmar variante (F1 2000–2007 x misto posterior)             |
+| CIR-0039 | `circuitos/svg/39-Fuji.svg`           | sim      | 3967.5           | 1.000 | 0           | -0.5%  | forward           | —                                                                                                                           |
+| CIR-0040 | `circuitos/svg/40-Jacarepagua.svg`    | sim      | 5727.9           | 1.000 | 0           | -1.5%  | —                 | race_direction: sentido de corrida não confirmado                                                                           |
+| CIR-0041 | `circuitos/svg/41-Brasilia.svg`       | sim      | 5738.8           | 1.000 | 0           | -2.4%  | —                 | geometria -2.4% vs extensão: confirmar variante do traçado; race_direction: sentido de corrida não confirmado               |
+| CIR-0042 | `circuitos/svg/42-Goiania.svg`        | sim      | 4627.7           | 1.000 | 0           | -0.4%  | —                 | race_direction: sentido de corrida não confirmado                                                                           |
+| CIR-0043 | `circuitos/svg/43-Sochi.svg`          | sim      | 4080.4           | 1.000 | 0           | -0.4%  | forward           | —                                                                                                                           |
 
 ## 4. Pendências para animar os carros
 
@@ -182,6 +182,7 @@ Somente o CIR-0021 foi alterado.
   - Canadá e Indianápolis passaram de v1 para v2.
 
   O `path#track` e o `path#pit` estão idênticos aos da 03A. As versões anteriores estão em `circuitos/svg/_versoes/`. A proposta do misto F1 2000–2007 de Indianápolis está em `circuitos/svg/_propostas/`; ela não é canônica, porque a geometria canônica já coincide com o traçado (desvio máximo de 22 m).
+
 - **Situação atual:**
   - sentido confirmado em 43 circuitos (39 por OSM ou documento oficial, 4 só por fonte secundária);
   - linha de chegada em 28 circuitos e largada em 27 (17 distintas);
@@ -289,15 +290,15 @@ Somente o CIR-0021 foi alterado.
 
 - **Candidatos da prancha 03C aprovados pelo proprietário e registrados como provisórios:**
 
-  | Circuito | Chegada | Largada |
-  |---|---|---|
-  | China | 0.92160 | 0.96050 |
-  | Japão | 0.94560 | 0.99890 |
-  | Magny-Cours | 0.00015 | coincidente |
-  | Estoril | 0.99357 | 0.99866 |
-  | Jerez | 0.70786 | coincidente |
-  | Mugello | 0.00050 | não registrada |
-  | Sochi | 0.95493 | 0.99700 |
+  | Circuito    | Chegada | Largada        |
+  | ----------- | ------- | -------------- |
+  | China       | 0.92160 | 0.96050        |
+  | Japão       | 0.94560 | 0.99890        |
+  | Magny-Cours | 0.00015 | coincidente    |
+  | Estoril     | 0.99357 | 0.99866        |
+  | Jerez       | 0.70786 | coincidente    |
+  | Mugello     | 0.00050 | não registrada |
+  | Sochi       | 0.95493 | 0.99700        |
 
 - **SVGs:** seis passaram de v2 para v3 e Sochi de v1 para v2, todos com `g#start_finish`. `path#track` e `path#pit` não mudaram.
 - **Situação dos 41 ativos:** N1 em 37 e N2 em 34.
@@ -311,21 +312,21 @@ Somente o CIR-0021 foi alterado.
 
 - **Boxes por aproximação, autorizados pelo proprietário.** Todos marcados como "APROXIMADO".
 
-  | Circuito | Entrada | Saída | Como foi traçado |
-  |---|---|---|---|
-  | Canadá | 0.93640 | 0.08552 | Sobre a imagem de satélite |
+  | Circuito     | Entrada | Saída   | Como foi traçado                                      |
+  | ------------ | ------- | ------- | ----------------------------------------------------- |
+  | Canadá       | 0.93640 | 0.08552 | Sobre a imagem de satélite                            |
   | Indianápolis | 0.82328 | 0.18595 | Vias OSM; a ligação a partir da curva 13 é aproximada |
-  | Sochi | 0.93500 | 0.03000 | Faixa esquemática |
-  | Hungria | 0.87500 | 0.09500 | Faixa esquemática |
-  | Jeddah | 0.88000 | 0.08000 | Faixa esquemática |
-  | Jacarepaguá | 0.93000 | 0.06000 | Faixa esquemática |
+  | Sochi        | 0.93500 | 0.03000 | Faixa esquemática                                     |
+  | Hungria      | 0.87500 | 0.09500 | Faixa esquemática                                     |
+  | Jeddah       | 0.88000 | 0.08000 | Faixa esquemática                                     |
+  | Jacarepaguá  | 0.93000 | 0.06000 | Faixa esquemática                                     |
 
 - **Linhas de chegada e largada provisórias:**
 
-  | Circuito | Posição | Fonte |
-  |---|---|---|
-  | Madrid | 0.94900 | Mapa enviado pelo proprietário |
-  | Hungria | 0.95120 | Imagem aérea enviada pelo proprietário |
+  | Circuito    | Posição | Fonte                                                                           |
+  | ----------- | ------- | ------------------------------------------------------------------------------- |
+  | Madrid      | 0.94900 | Mapa enviado pelo proprietário                                                  |
+  | Hungria     | 0.95120 | Imagem aérea enviada pelo proprietário                                          |
   | Jacarepaguá | 0.98200 | Decisão delegada pelo proprietário, a partir da marca visível na imagem de 2014 |
 
 - **Situação dos 41 ativos:** N1 em 40 e N2 em 40. Falta só a chegada de Jeddah.

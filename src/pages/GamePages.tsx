@@ -17,17 +17,27 @@ export function Dashboard() {
   ] as const
   return (
     <section className="dashboard">
-      <div className="dash-welcome">
+      <div className="dash-welcome flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <p className="eyebrow">CENTRAL DA EQUIPE</p>
           <h1>
             Bem-vindo, <span>{user?.name}</span>
           </h1>
-          <p>O grid está pronto. Escolha seu próximo movimento.</p>
+          <p>
+            O grid está pronto. Escolha seu próximo movimento ou inicie uma nova carreira canônica.
+          </p>
         </div>
-        <Avatar className="dash-avatar">
-          <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/carreira/nova"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm shadow-lg shadow-primary/20 transition-all"
+          >
+            <Trophy className="w-4 h-4" /> Criar Carreira
+          </Link>
+          <Avatar className="dash-avatar">
+            <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+        </div>
       </div>
       <div className="starting-lights dashboard-lights">
         {[0, 1, 2, 3, 4].map((i) => (
