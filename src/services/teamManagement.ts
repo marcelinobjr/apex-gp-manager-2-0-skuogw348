@@ -1,5 +1,6 @@
 import pb from '@/lib/pocketbase/client'
 import { circuits, activeCircuits, teams, drivers, structures } from '@/data/game'
+import { rdService, facilitiesService } from '@/services/rdService'
 import {
   careerService,
   CareerRecord,
@@ -1160,22 +1161,45 @@ export const teamManagementService = {
       }
     }
 
-    // 4. Progresso de P&D
+    // 4. Progresso de P&D (ciclo canônico 05C3) e das obras de instalação
+    // - Pesquisa (RESEARCHING): ao atingir 0 rodadas, o sorte técnico único acontece
+    //   no servidor (determinístico pela seed do projeto).
+    // - Fabricação (MANUFACTURING): ao atingir 0 rodadas, o componente físico é criado
+    //   no inventário com serial próprio.
     const activeProjects = await pb.collection('rd_projects').getFullList<RDProjectRecord>({
-      filter: `career_id = "${career.id}" && status = "IN_PROGRESS"`,
+      filter: `career_id = "${career.id}" && status = "IN_PROGRESS" && status_canonical != ""`,
     })
     for (const proj of activeProjects) {
+      const canonical = (proj as unknown as { status_canonical?: string }).status_canonical || ''
       const nextRemaining = proj.rounds_remaining - 1
-      if (nextRemaining <= 0) {
-        await pb.collection('rd_projects').update(proj.id, {
-          rounds_remaining: 0,
-          status: 'COMPLETED',
-        })
-      } else {
+      if (nextRemaining > 0) {
         await pb.collection('rd_projects').update(proj.id, {
           rounds_remaining: nextRemaining,
         })
+        continue
       }
+      await pb.collection('rd_projects').update(proj.id, { rounds_remaining: 0 })
+      if (canonical === 'RESEARCHING') {
+        // Sorte técnico único, executado uma única vez e persistido no servidor
+        try {
+          await rdService.completeResearch(career.id, proj.id)
+        } catch (err) {
+          console.warn('Falha ao concluir pesquisa do projeto', proj.id, err)
+        }
+      } else if (canonical === 'MANUFACTURING') {
+        try {
+          await rdService.completeManufacturing(career.id, proj.id)
+        } catch (err) {
+          console.warn('Falha ao concluir fabricação do projeto', proj.id, err)
+        }
+      }
+    }
+
+    // 4b. Avançar obras de instalação (confirma despesa e aplica o nível ao concluir)
+    try {
+      await facilitiesService.advanceRound(career.id)
+    } catch (err) {
+      console.warn('Falha ao avançar obras de instalação', err)
     }
 
     // 5. Atualizar evento do calendário

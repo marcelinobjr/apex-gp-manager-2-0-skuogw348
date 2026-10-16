@@ -21,6 +21,7 @@ import { TeamHubPage } from '@/pages/TeamHubPage'
 import { TeamDriversPage } from '@/pages/TeamDriversPage'
 import { TeamCarPage } from '@/pages/TeamCarPage'
 import { TeamProjectsPage } from '@/pages/TeamProjectsPage'
+import { TeamProjectsPageWrapper } from '@/pages/TeamProjectsPageWrapper'
 import { TeamFacilitiesPage } from '@/pages/TeamFacilitiesPage'
 import { TeamFinancesPage } from '@/pages/TeamFinancesPage'
 import { SeasonPage } from '@/pages/SeasonPage'
@@ -88,7 +89,7 @@ export default function App() {
                 path="/equipe/projetos"
                 element={
                   <Protected>
-                    <TeamProjectsPage />
+                    <TeamProjectsPageWrapper />
                   </Protected>
                 }
               />

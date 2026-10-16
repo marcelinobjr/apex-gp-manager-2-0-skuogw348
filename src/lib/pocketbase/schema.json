@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T03:04:29.320Z",
+  "generatedAt": "2026-10-16T03:18:28.915Z",
   "collections": [
     {
       "name": "users",
@@ -723,6 +723,179 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "target_attributes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "risk_strategy",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "design_center_level",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cfd_cluster_level",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "wind_tunnel_level",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "factory_level",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "operations_center_level",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "industrial_structure_level",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "project_seed",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "result_seed",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "result_rolled_at",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "component_type",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "component_name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "component_serial",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "manufactured_component_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "installed_component_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "installed_car_index",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cancelled_reason",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "spent_cash",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "spend_cap_used",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "released_cash",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "released_cap",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "progress_pct",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "facility_allocations",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "result_detail",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "state_history",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_canonical",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "PROPOSED",
+            "RESERVED",
+            "RESEARCHING",
+            "DESIGNED",
+            "MANUFACTURING",
+            "READY",
+            "INSTALLED",
+            "FAILED",
+            "CANCELLED"
+          ]
         }
       ],
       "indexes": [
@@ -2061,6 +2234,204 @@
       "indexes": [
         "CREATE INDEX idx_import_logs_run_catalog ON import_logs (run_id, catalog)",
         "CREATE INDEX idx_import_logs_created ON import_logs (created DESC)"
+      ]
+    },
+    {
+      "name": "facility_projects",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != \"\" && user_id = @request.auth.id",
+        "view": "@request.auth.id != \"\" && user_id = @request.auth.id",
+        "create": "@request.auth.id != \"\"",
+        "update": "@request.auth.id != \"\" && user_id = @request.auth.id",
+        "delete": "@request.auth.id != \"\" && user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "career_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "careers"
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "facility_code",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "facility_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "from_level",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "to_level",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "cost_cash",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "cost_cap",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "rounds_remaining",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "duration_rounds",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "effect_target_service",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "effect_summary",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pending_integration",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "history",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_fac_proj_career ON facility_projects (career_id)",
+        "CREATE INDEX idx_fac_proj_facility ON facility_projects (career_id, facility_code)"
+      ]
+    },
+    {
+      "name": "team_technical_state",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != \"\" && user_id = @request.auth.id",
+        "view": "@request.auth.id != \"\" && user_id = @request.auth.id",
+        "create": "@request.auth.id != \"\"",
+        "update": "@request.auth.id != \"\" && user_id = @request.auth.id",
+        "delete": "@request.auth.id != \"\" && user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "career_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "careers"
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "team_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "season_year",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "effective_attributes",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "baseline_attributes",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "source_ledger",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_tts_unique ON team_technical_state (career_id, team_id, season_year)",
+        "CREATE INDEX idx_tts_career ON team_technical_state (career_id)"
       ]
     }
   ]
