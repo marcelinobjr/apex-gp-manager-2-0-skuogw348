@@ -27,6 +27,10 @@ export interface VersionedRuleset {
   freeToPlayDoesNotAlterPhysics: boolean // INV-07: integridade física
   minWeightKg: number // Peso mínimo homologado do chassi
   isProvisional: boolean // Flag de aprovação provisória pendente
+  // Regulamentação técnica e desportiva de Unidades de Potência (Doc Mestre 13.3 / 13.4)
+  engineAllocationPerDriver: number // 4 motores físicos por piloto por temporada
+  fifthEngineSanctionPending: boolean // Indica pendência regulamentar para sanção da 5ª PU
+  fifthEngineSanctionDescription: string // Descrição oficial da pendência
 }
 
 /**
@@ -48,6 +52,10 @@ export const OFFICIAL_RULESETS: Record<string, VersionedRuleset> = {
     freeToPlayDoesNotAlterPhysics: true,
     minWeightKg: 798,
     isProvisional: true,
+    engineAllocationPerDriver: 4,
+    fifthEngineSanctionPending: true,
+    fifthEngineSanctionDescription:
+      'PENDÊNCIA REGULAMENTAR FIA 2026.1: Sanção oficial desportiva (perda de posições no grid vs. largada do pitlane) pendente de homologação na especificação do Race Engine. O evento de infração é registrado canonicamente no ledger com penalidade pendente de calibração.',
   },
 }
 
@@ -82,6 +90,9 @@ export interface FrozenRulesSnapshot {
   engineFreeze: boolean
   freeToPlayDoesNotAlterPhysics: boolean
   minWeightKg: number
+  engineAllocationPerDriver?: number
+  fifthEngineSanctionPending?: boolean
+  fifthEngineSanctionDescription?: string
   frozenAt?: string
 }
 
@@ -100,6 +111,9 @@ export function createFrozenRulesSnapshot(
     engineFreeze: ruleset.engineFreeze,
     freeToPlayDoesNotAlterPhysics: ruleset.freeToPlayDoesNotAlterPhysics,
     minWeightKg: ruleset.minWeightKg,
+    engineAllocationPerDriver: ruleset.engineAllocationPerDriver ?? 4,
+    fifthEngineSanctionPending: ruleset.fifthEngineSanctionPending ?? true,
+    fifthEngineSanctionDescription: ruleset.fifthEngineSanctionDescription,
     frozenAt: new Date().toISOString(),
   }
 }

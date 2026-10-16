@@ -42,7 +42,87 @@ onRecordUpdate((e) => {
   e.next()
 }, 'career_state')
 
-// 2. Endpoint transacional seguro e idempotente para operações financeiras no servidor
+// 2. Hook de validação em car_components antes de update/create
+// Impede que a mesma unidade física de motor seja instalada simultaneamente em dois carros
+onRecordCreateRequest((e) => {
+  const compType = e.record.get('component_type')
+  const isInstalled = e.record.get('is_installed')
+  const carIndex = e.record.get('car_index')
+  const careerId = e.record.get('career_id')
+  const physicalSerial = e.record.get('physical_serial')
+
+  // Se for unidade instalada no cockpit, garantir que não há outra unidade ativa no mesmo carro ou mesma unidade em outro carro
+  if (compType === 'engine' && isInstalled) {
+    if (physicalSerial) {
+      const activeSameSerial = $app.findRecordsByFilter(
+        'car_components',
+        'career_id = {:careerId} && physical_serial = {:serial} && is_installed = true',
+        '',
+        1,
+        0,
+        { careerId: careerId, serial: physicalSerial },
+      )
+      if (activeSameSerial.length > 0) {
+        throw new BadRequestError(
+          'Bloqueio Físico/Regulamentar: A unidade ' +
+            physicalSerial +
+            ' já está instalada em um chassi ativo.',
+        )
+      }
+    }
+  }
+  e.next()
+}, 'car_components')
+
+onRecordUpdateRequest((e) => {
+  const compType = e.record.get('component_type')
+  const isInstalled = e.record.get('is_installed')
+  const carIndex = e.record.get('car_index')
+  const careerId = e.record.get('career_id')
+  const physicalSerial = e.record.get('physical_serial')
+  const recordId = e.record.id
+
+  if (compType === 'engine' && isInstalled) {
+    // Verificar se outra unidade física com o mesmo serial já está instalada
+    if (physicalSerial) {
+      const activeSameSerial = $app.findRecordsByFilter(
+        'car_components',
+        'career_id = {:careerId} && physical_serial = {:serial} && is_installed = true && id != {:recId}',
+        '',
+        1,
+        0,
+        { careerId: careerId, serial: physicalSerial, recId: recordId },
+      )
+      if (activeSameSerial.length > 0) {
+        throw new BadRequestError(
+          'Bloqueio Físico/Regulamentar: A unidade física ' +
+            physicalSerial +
+            ' já se encontra instalada em outro carro.',
+        )
+      }
+    }
+
+    // Verificar se já existe outra unidade de motor instalada NO MESMO CARRO
+    const activeSameCar = $app.findRecordsByFilter(
+      'car_components',
+      'career_id = {:careerId} && car_index = {:carIdx} && component_type = "engine" && is_installed = true && id != {:recId}',
+      '',
+      1,
+      0,
+      { careerId: careerId, carIdx: carIndex, recId: recordId },
+    )
+    if (activeSameCar.length > 0) {
+      throw new BadRequestError(
+        'Bloqueio Operacional: O Carro #' +
+          carIndex +
+          ' já possui uma unidade de potência instalada. Remova a unidade atual antes de instalar outra.',
+      )
+    }
+  }
+  e.next()
+}, 'car_components')
+
+// 3. Endpoint transacional seguro e idempotente para operações financeiras no servidor
 // Rota: POST /backend/v1/finances/execute-operation
 // Executa validação de caixa e teto dentro de uma transação com bloqueio de concorrência e chave de idempotência.
 routerAdd('POST', '/backend/v1/finances/execute-operation', (c) => {

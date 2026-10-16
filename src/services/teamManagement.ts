@@ -68,19 +68,101 @@ export interface EventResultPayload {
   pointsDistributed: Record<string, number>
 }
 
+export type ComponentType =
+  | 'front_wing'
+  | 'rear_wing'
+  | 'floor'
+  | 'sidepods'
+  | 'suspension'
+  | 'brakes'
+  | 'gearbox'
+  | 'engine'
+
+export type ComponentOperationalStatus =
+  | 'ACTIVE_INSTALLED'
+  | 'AVAILABLE_BENCH'
+  | 'MAINTENANCE'
+  | 'RETIRED'
+
+export interface ComponentUsageEvent {
+  eventId?: string
+  sessionType: 'FP' | 'QUALIFYING' | 'SPRINT' | 'RACE' | 'TEST'
+  round?: number
+  circuitId?: string
+  trackName?: string
+  distanceKm: number
+  wearDeltaPct: number
+  conditionBeforePct: number
+  conditionAfterPct: number
+  operatingTempC?: number
+  stressLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME'
+  mechanicalFault?: string | null
+  idempotencyKey?: string
+  timestamp: string
+}
+
+export interface ComponentInstallationEvent {
+  car_index: number
+  action:
+    | 'INITIAL_INSTALL'
+    | 'BENCH_ALLOCATION'
+    | 'INSTALLED_TO_CAR'
+    | 'REMOVED_TO_BENCH'
+    | 'REPAIRED'
+  previousUnitId?: string
+  timestamp: string
+  reason?: string
+}
+
 export interface CarComponentRecord {
   id: string
   career_id: string
   user_id: string
   team_id: string
   car_index: number
-  component_type: 'front_wing' | 'rear_wing' | 'floor' | 'sidepods' | 'suspension' | 'engine'
+  component_type: ComponentType
   component_name: string
   level: number
   condition_pct: number
   engine_unit_number?: number
+  physical_serial?: string
+  season_year?: number
+  driver_id?: string
+  manufacturer_id?: string
+  status?: ComponentOperationalStatus
+  mileage_km?: number
+  penalty_incurred?: boolean
+  usage_history?: ComponentUsageEvent[]
+  installation_history?: ComponentInstallationEvent[]
+  is_installed?: boolean
   created: string
   updated: string
+}
+
+export interface EngineSubstitutionResult {
+  uninstalledUnit: CarComponentRecord | null
+  installedUnit: CarComponentRecord
+  penaltyEvent: {
+    incurred: boolean
+    unitNumber: number
+    driverId?: string
+    rulesetVersion: string
+    sanctionPending: boolean
+    sanctionDescription: string
+    receiptId?: string
+  } | null
+}
+
+export interface EngineWearSimulationInput {
+  careerId: string
+  componentId: string
+  sessionType: 'FP' | 'QUALIFYING' | 'SPRINT' | 'RACE' | 'TEST'
+  distanceKm: number
+  stressLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME'
+  operatingTempC?: number
+  circuitId?: string
+  round?: number
+  idempotencyKey: string
 }
 
 export interface RDProjectRecord {
@@ -193,8 +275,19 @@ export const teamManagementService = {
         })
       }
 
+      // Localizar pilotos e motor da equipe gerenciada a partir de career.teams_config_frozen
+      const managedConfig = career.teams_config_frozen?.find(
+        (tc) => tc.teamId === career.managed_team_id,
+      )
       // Inicializar componentes mecânicos do carro 1 e carro 2 da equipe gerenciada
-      await this.initializeCarComponents(career.id, career.managed_team_id)
+      await this.initializeCarComponents(
+        career.id,
+        career.managed_team_id,
+        managedConfig?.driver1Id,
+        managedConfig?.driver2Id,
+        managedConfig?.engineId,
+        career.current_year || 2026,
+      )
     }
 
     // Carregar eventos da temporada
@@ -208,61 +301,71 @@ export const teamManagementService = {
 
   /**
    * Inicializa o inventário físico de peças (4 motores físicos por piloto conforme Documento Mestre)
+   * Agora contemplando todos os componentes obrigatórios (asa diant, asa tras, assoalho, laterais, suspensão, freios, câmbio)
+   * e 4 unidades físicas de motor independentes por piloto com números de série permanentes.
    */
-  async initializeCarComponents(careerId: string, teamId: string): Promise<void> {
+  async initializeCarComponents(
+    careerId: string,
+    teamId: string,
+    driver1Id?: string,
+    driver2Id?: string,
+    engineManufacturerId?: string,
+    seasonYear: number = 2026,
+  ): Promise<void> {
     const userId = pb.authStore.record?.id
     if (!userId) return
 
-    const componentsToCreate: Array<{
-      car_index: number
-      component_type: CarComponentRecord['component_type']
-      component_name: string
-      level: number
-      condition_pct: number
-      engine_unit_number?: number
-    }> = []
+    const shortId = careerId.substring(0, 8)
+    const baseComponents: Array<{
+      type: ComponentType
+      name: string
+    }> = [
+      { type: 'front_wing', name: 'Asa Dianteira' },
+      { type: 'rear_wing', name: 'Asa Traseira' },
+      { type: 'floor', name: 'Assoalho Venturi' },
+      { type: 'sidepods', name: 'Laterais & Radiadores' },
+      { type: 'suspension', name: 'Suspensão Pushrod' },
+      { type: 'brakes', name: 'Sistema de Freios Carbono' },
+      { type: 'gearbox', name: 'Transmissão & Câmbio 8 Velocidades' },
+    ]
+
+    const componentsToCreate: Array<Partial<CarComponentRecord>> = []
 
     // Carro 1 e Carro 2
-    for (const carIdx of [1, 2]) {
-      componentsToCreate.push(
-        {
+    for (const carIdx of [1, 2] as const) {
+      const driverId = carIdx === 1 ? driver1Id || '' : driver2Id || ''
+
+      // Componentes estruturais e aerodinâmicos do carro
+      for (const comp of baseComponents) {
+        componentsToCreate.push({
           car_index: carIdx,
-          component_type: 'front_wing',
-          component_name: `Asa Dianteira C${carIdx}`,
+          component_type: comp.type,
+          component_name: `${comp.name} C${carIdx}`,
           level: 1,
           condition_pct: 100,
-        },
-        {
-          car_index: carIdx,
-          component_type: 'rear_wing',
-          component_name: `Asa Traseira C${carIdx}`,
-          level: 1,
-          condition_pct: 100,
-        },
-        {
-          car_index: carIdx,
-          component_type: 'floor',
-          component_name: `Assoalho Venturi C${carIdx}`,
-          level: 1,
-          condition_pct: 100,
-        },
-        {
-          car_index: carIdx,
-          component_type: 'sidepods',
-          component_name: `Laterais Aero C${carIdx}`,
-          level: 1,
-          condition_pct: 100,
-        },
-        {
-          car_index: carIdx,
-          component_type: 'suspension',
-          component_name: `Suspensão Pushrod C${carIdx}`,
-          level: 1,
-          condition_pct: 100,
-        },
-      )
-      // 4 Motores físicos por piloto/carro (Documento Mestre)
+          physical_serial: `PART-${shortId}-${seasonYear}-C${carIdx}-${comp.type.toUpperCase()}`,
+          season_year: seasonYear,
+          driver_id: driverId,
+          manufacturer_id: teamId,
+          status: 'ACTIVE_INSTALLED',
+          mileage_km: 0,
+          penalty_incurred: false,
+          is_installed: true,
+          usage_history: [],
+          installation_history: [
+            {
+              car_index: carIdx,
+              action: 'INITIAL_INSTALL',
+              timestamp: new Date().toISOString(),
+              reason: 'Montagem inicial de fábrica do chassi',
+            },
+          ],
+        })
+      }
+
+      // 4 Unidades físicas de potência por piloto/carro (Documento Mestre 13.3)
       for (let m = 1; m <= 4; m++) {
+        const isInitialInstalled = m === 1
         componentsToCreate.push({
           car_index: carIdx,
           component_type: 'engine',
@@ -270,6 +373,25 @@ export const teamManagementService = {
           level: 1,
           condition_pct: 100,
           engine_unit_number: m,
+          physical_serial: `PU-${shortId}-${seasonYear}-C${carIdx}-U${m}`,
+          season_year: seasonYear,
+          driver_id: driverId,
+          manufacturer_id: engineManufacturerId || 'ENG-0005',
+          status: isInitialInstalled ? 'ACTIVE_INSTALLED' : 'AVAILABLE_BENCH',
+          mileage_km: 0,
+          penalty_incurred: false,
+          is_installed: isInitialInstalled,
+          usage_history: [],
+          installation_history: [
+            {
+              car_index: carIdx,
+              action: isInitialInstalled ? 'INITIAL_INSTALL' : 'BENCH_ALLOCATION',
+              timestamp: new Date().toISOString(),
+              reason: isInitialInstalled
+                ? 'Unidade 1 instalada no cockpit para abertura da temporada'
+                : `Unidade alocada no banco regulamentar (Quota 4 PUs)`,
+            },
+          ],
         })
       }
     }
@@ -282,6 +404,357 @@ export const teamManagementService = {
         ...comp,
       })
     }
+  },
+
+  /**
+   * Substituição de unidade de potência instalada no carro
+   * - Desinstala a unidade atualmente montada no carro para o banco (AVAILABLE_BENCH)
+   * - Instala a unidade selecionada (ACTIVE_INSTALLED)
+   * - Preserva integralmente o desgaste (condition_pct) e a quilometragem (mileage_km)
+   * - Bloqueia se a unidade já estiver montada em outro carro
+   * - Se for a 5ª PU física ou superior, emite evento de penalidade regulamentar único no ledger
+   */
+  async substituteEngineUnit(params: {
+    careerId: string
+    carIndex: 1 | 2
+    targetComponentId: string
+    reason?: string
+  }): Promise<EngineSubstitutionResult> {
+    const userId = pb.authStore.record?.id
+    if (!userId) throw new Error('Não autenticado')
+
+    const { careerId, carIndex, targetComponentId, reason } = params
+
+    // 1. Obter a unidade alvo a ser instalada
+    const targetUnit = await pb
+      .collection('car_components')
+      .getOne<CarComponentRecord>(targetComponentId)
+    if (!targetUnit || targetUnit.career_id !== careerId) {
+      throw new Error('Unidade de potência não encontrada nesta carreira.')
+    }
+    if (targetUnit.component_type !== 'engine') {
+      throw new Error('O componente selecionado não é uma unidade de potência.')
+    }
+
+    // Se já estiver instalada neste mesmo carro, não há operação necessária
+    if (targetUnit.is_installed && targetUnit.car_index === carIndex) {
+      return {
+        uninstalledUnit: null,
+        installedUnit: targetUnit,
+        penaltyEvent: null,
+      }
+    }
+
+    // Regra: Bloquear instalação simultânea da mesma unidade física em dois carros
+    if (targetUnit.is_installed && targetUnit.car_index !== carIndex) {
+      throw new Error(
+        `Bloqueio de Integridade Física: A unidade ${targetUnit.physical_serial || targetUnit.id} já está instalada no Carro #${targetUnit.car_index}. Remova-a antes de tentar instalar no Carro #${carIndex}.`,
+      )
+    }
+
+    // 2. Localizar unidade atualmente instalada no carro alvo (se houver)
+    let currentInstalled: CarComponentRecord | null = null
+    const activeUnits = await pb.collection('car_components').getFullList<CarComponentRecord>({
+      filter: `career_id = "${careerId}" && car_index = ${carIndex} && component_type = "engine" && is_installed = true`,
+    })
+    if (activeUnits.length > 0) {
+      currentInstalled = activeUnits[0]
+    }
+
+    // 3. Verificar regra da Quinta Unidade e Penalidade FIA (Seção 13.3)
+    // "A partir da quinta unidade física nova utilizada pelo mesmo piloto na temporada..."
+    // "REGRA FUNDAMENTAL: voltar a utilizar o motor 1 depois de usar o motor 2 NÃO caracteriza uma quinta unidade. O limite refere-se à quantidade de unidades físicas distintas alocadas, não ao número de substituições."
+    let penaltyEvent: EngineSubstitutionResult['penaltyEvent'] = null
+    const targetUnitNumber = targetUnit.engine_unit_number || 1
+    const isNewFifthOrHigher = targetUnitNumber >= 5
+
+    // Se for 5ª unidade nova e ainda não tiver penalidade registrada
+    if (isNewFifthOrHigher && !targetUnit.penalty_incurred) {
+      const rulesFrozen = (await careerService.getCareerById(careerId)).rules_frozen
+      const rulesetVersion = rulesFrozen?.rulesetVersion || '2026.1_PROVISIONAL'
+
+      const idempotencyKey = `PENALTY_FIA_${careerId}_Y${targetUnit.season_year || 2026}_C${carIndex}_PU${targetUnitNumber}_${targetUnit.id}`
+
+      // Registrar evento canônico em career_receipts
+      const receipt = await pb.collection('career_receipts').create<CareerReceiptRecord>({
+        career_id: careerId,
+        user_id: userId,
+        action_type: 'FIA_REGULATORY_PENALTY_INCURRED',
+        idempotency_key: idempotencyKey,
+        payload: {
+          violationType: 'EXCESS_POWER_UNIT_ELEMENTS',
+          carIndex,
+          driverId: targetUnit.driver_id,
+          unitNumber: targetUnitNumber,
+          physicalSerial: targetUnit.physical_serial,
+          rulesetVersion,
+          sanctionPending: true,
+          sanctionDescription:
+            'PENDÊNCIA REGULAMENTAR FIA 2026.1: Sanção oficial desportiva (perda de posições no grid vs. largada do pitlane) pendente de homologação na especificação do Race Engine. O evento de infração é registrado canonicamente no ledger com penalidade pendente de calibração.',
+          timestamp: new Date().toISOString(),
+        },
+        status: 'EXECUTED',
+      })
+
+      penaltyEvent = {
+        incurred: true,
+        unitNumber: targetUnitNumber,
+        driverId: targetUnit.driver_id,
+        rulesetVersion,
+        sanctionPending: true,
+        sanctionDescription:
+          'PENDÊNCIA REGULAMENTAR FIA 2026.1: Sanção oficial desportiva pendente de homologação no Race Engine.',
+        receiptId: receipt.id,
+      }
+    }
+
+    // 4. Se havia motor instalado, desinstalar primeiro para liberar o slot do carro (evita disparo do hook de conflito)
+    let uninstalledRecord: CarComponentRecord | null = null
+    if (currentInstalled && currentInstalled.id !== targetUnit.id) {
+      const prevInstallHistory: ComponentInstallationEvent[] =
+        currentInstalled.installation_history || []
+      const updatedHistory: ComponentInstallationEvent[] = [
+        ...prevInstallHistory,
+        {
+          car_index: carIndex,
+          action: 'REMOVED_TO_BENCH',
+          previousUnitId: currentInstalled.id,
+          timestamp: new Date().toISOString(),
+          reason: reason || `Removido para entrada da PU #${targetUnitNumber}`,
+        },
+      ]
+
+      uninstalledRecord = await pb
+        .collection('car_components')
+        .update<CarComponentRecord>(currentInstalled.id, {
+          is_installed: false,
+          status: 'AVAILABLE_BENCH',
+          installation_history: updatedHistory,
+        })
+    }
+
+    // 5. Instalar a nova unidade no carro (preservando condição e quilometragem existentes)
+    const targetInstallHistory: ComponentInstallationEvent[] = targetUnit.installation_history || []
+    const updatedTargetHistory: ComponentInstallationEvent[] = [
+      ...targetInstallHistory,
+      {
+        car_index: carIndex,
+        action: 'INSTALLED_TO_CAR',
+        previousUnitId: currentInstalled?.id,
+        timestamp: new Date().toISOString(),
+        reason: reason || `Instalação operacional no cockpit do Carro #${carIndex}`,
+      },
+    ]
+
+    const updatedTarget = await pb
+      .collection('car_components')
+      .update<CarComponentRecord>(targetUnit.id, {
+        car_index: carIndex,
+        is_installed: true,
+        status: 'ACTIVE_INSTALLED',
+        penalty_incurred: targetUnit.penalty_incurred || (penaltyEvent?.incurred ?? false),
+        installation_history: updatedTargetHistory,
+      })
+
+    return {
+      uninstalledUnit: uninstalledRecord,
+      installedUnit: updatedTarget,
+      penaltyEvent,
+    }
+  },
+
+  /**
+   * Adiciona nova unidade física de motor à cota do piloto (5ª unidade ou além)
+   * Requer aprovação do jogador, custo no ledger canônico e gera penalidade regulamentar
+   */
+  async allocateExtraEngineUnit(params: {
+    careerId: string
+    carIndex: 1 | 2
+    cost?: number
+  }): Promise<CarComponentRecord> {
+    const userId = pb.authStore.record?.id
+    if (!userId) throw new Error('Não autenticado')
+
+    const { careerId, carIndex, cost = 1_500_000 } = params
+
+    const career = await careerService.getCareerById(careerId)
+    const state = await careerService.getCareerState(careerId)
+    if (!state) throw new Error('Estado da carreira não encontrado')
+
+    // INV-04 / INV-05: Validação financeira da compra da unidade adicional
+    const check = validateFinancialOperation({
+      cost,
+      currentCash: state.cash_balance,
+      costCapSpent: state.cost_cap_spent,
+      costCapBudget: state.cost_cap_budget,
+      costCapStrict: true,
+      reservedCash: state.reserved_cash || 0,
+      reservedCostCap: state.reserved_cost_cap || 0,
+      countsAgainstCostCap: true,
+    })
+
+    if (!check.allowed) {
+      throw new Error(
+        check.reason || 'Saldo insuficiente ou estouro de teto para compra de nova PU física.',
+      )
+    }
+
+    // Buscar maior número de unidade já alocado para este carro
+    const existingPUs = await pb.collection('car_components').getFullList<CarComponentRecord>({
+      filter: `career_id = "${careerId}" && car_index = ${carIndex} && component_type = "engine"`,
+      sort: '-engine_unit_number',
+    })
+    const nextUnitNumber = (existingPUs[0]?.engine_unit_number || 4) + 1
+
+    const shortId = careerId.substring(0, 8)
+    const seasonYear = career.current_year || 2026
+    const serial = `PU-${shortId}-${seasonYear}-C${carIndex}-U${nextUnitNumber}`
+
+    // 1. Debita o valor no ledger financeiro de forma atômica
+    const idempotencyKey = `PU_BUY_${careerId}_C${carIndex}_U${nextUnitNumber}_${Date.now()}`
+    await careerService.executeFinancialOperation({
+      careerId,
+      idempotencyKey,
+      actionType: 'POWER_UNIT_ACQUISITION',
+      cost,
+      countsAgainstCostCap: true,
+      description: `Aquisição de Unidade de Potência Adicional: PU #${nextUnitNumber} (Carro ${carIndex})`,
+      metadata: { carIndex, nextUnitNumber, serial, cost },
+    })
+
+    // 2. Cria a nova unidade física independente no banco de reservas
+    const newUnit = await pb.collection('car_components').create<CarComponentRecord>({
+      career_id: careerId,
+      user_id: userId,
+      team_id: career.managed_team_id,
+      car_index: carIndex,
+      component_type: 'engine',
+      component_name: `Unidade de Potência F1-PU #${nextUnitNumber} (Carro ${carIndex})`,
+      level: 1,
+      condition_pct: 100,
+      engine_unit_number: nextUnitNumber,
+      physical_serial: serial,
+      season_year: seasonYear,
+      driver_id: existingPUs[0]?.driver_id || '',
+      manufacturer_id: existingPUs[0]?.manufacturer_id || 'ENG-0005',
+      status: 'AVAILABLE_BENCH',
+      mileage_km: 0,
+      penalty_incurred: false,
+      is_installed: false,
+      usage_history: [],
+      installation_history: [
+        {
+          car_index: carIndex,
+          action: 'BENCH_ALLOCATION',
+          timestamp: new Date().toISOString(),
+          reason: `Alocação de nova PU física extra #${nextUnitNumber} (Sujeita a sanção na primeira instalação)`,
+        },
+      ],
+    })
+
+    return newUnit
+  },
+
+  /**
+   * Contrato de integração para o futuro Race Engine:
+   * Registra a utilização controlada e o desgaste de uma unidade de potência com persistência atômica e idempotente.
+   */
+  async recordEngineUsage(input: EngineWearSimulationInput): Promise<CarComponentRecord> {
+    const {
+      careerId,
+      componentId,
+      sessionType,
+      distanceKm,
+      stressLevel = 'MEDIUM',
+      operatingTempC = 110,
+      circuitId,
+      round,
+      idempotencyKey,
+    } = input
+
+    // 1. Verificar idempotência via recibo
+    const existingReceipt = await pb
+      .collection('career_receipts')
+      .getFullList<CareerReceiptRecord>({
+        filter: `idempotency_key = "${idempotencyKey}"`,
+      })
+
+    const unit = await pb.collection('car_components').getOne<CarComponentRecord>(componentId)
+    if (!unit || unit.career_id !== careerId) {
+      throw new Error('Componente físico de motor não encontrado.')
+    }
+
+    if (existingReceipt.length > 0) {
+      // Já processado (idempotente)
+      return unit
+    }
+
+    // 2. Calcular desgaste com base em quilometragem e nível de esforço
+    // Referência de durabilidade: 4–6 corridas (~300km cada GP = ~1500km total, ~15-25% por GP)
+    const baseWearPerKm = 0.05 // 5% a cada 100km
+    let stressMultiplier = 1.0
+    if (stressLevel === 'LOW') stressMultiplier = 0.8
+    if (stressLevel === 'HIGH') stressMultiplier = 1.3
+    if (stressLevel === 'EXTREME') stressMultiplier = 1.6
+
+    // Temperatura de operação (>120C eleva o desgaste)
+    const tempFactor = operatingTempC > 120 ? 1.25 : 1.0
+
+    const wearDelta = Math.min(
+      100,
+      Math.round(distanceKm * baseWearPerKm * stressMultiplier * tempFactor * 10) / 10,
+    )
+    const newCondition = Math.max(0, Math.round((unit.condition_pct - wearDelta) * 10) / 10)
+    const newMileage = (unit.mileage_km || 0) + distanceKm
+
+    const usageEvent: ComponentUsageEvent = {
+      sessionType,
+      round,
+      circuitId,
+      distanceKm,
+      wearDeltaPct: wearDelta,
+      conditionBeforePct: unit.condition_pct,
+      conditionAfterPct: newCondition,
+      operatingTempC,
+      stressLevel,
+      mechanicalFault:
+        newCondition < 20 ? 'Perda severa de potência e risco de quebra térmica' : null,
+      idempotencyKey,
+      timestamp: new Date().toISOString(),
+    }
+
+    const prevHistory = unit.usage_history || []
+    const updatedHistory = [...prevHistory, usageEvent]
+
+    // 3. Persistir histórico e novo desgaste no componente
+    const updatedUnit = await pb.collection('car_components').update<CarComponentRecord>(unit.id, {
+      condition_pct: newCondition,
+      mileage_km: newMileage,
+      usage_history: updatedHistory,
+    })
+
+    // 4. Gravar recibo canônico de idempotência
+    const userId = pb.authStore.record?.id || ''
+    await pb.collection('career_receipts').create<CareerReceiptRecord>({
+      career_id: careerId,
+      user_id: userId,
+      action_type: 'ENGINE_USAGE_RECORDED',
+      idempotency_key: idempotencyKey,
+      payload: {
+        componentId,
+        serial: unit.physical_serial,
+        sessionType,
+        distanceKm,
+        wearDelta,
+        previousCondition: unit.condition_pct,
+        newCondition,
+        newMileage,
+        timestamp: new Date().toISOString(),
+      },
+      status: 'EXECUTED',
+    })
+
+    return updatedUnit
   },
 
   /**
@@ -652,12 +1125,35 @@ export const teamManagementService = {
     updatedConstructors.sort((a, b) => b.points - a.points || b.wins - a.wins)
 
     // 3. Desgaste de peças mecânicas (INV-03)
+    // REGRA FUNDAMENTAL: Apenas peças ATIVAMENTE instaladas no carro sofrem desgaste.
+    // Motores no banco de reservas (is_installed = false) NÃO sofrem desgaste!
     const comps = await this.getCarComponents(career.id)
     for (const comp of comps) {
-      // Perda de 5 a 12% por GP
-      const wear = 5 + Math.floor(Math.random() * 8)
-      const newPct = Math.max(0, comp.condition_pct - wear)
-      await pb.collection('car_components').update(comp.id, { condition_pct: newPct })
+      // Desgaste atinge apenas componentes instalados no cockpit durante o GP
+      if (comp.is_installed) {
+        // Distância típica de GP ~305 km
+        const gpKm = 305
+        const wear = 5 + Math.floor(Math.random() * 8)
+        const newPct = Math.max(0, comp.condition_pct - wear)
+        const newMileage = (comp.mileage_km || 0) + gpKm
+        const usageEvt: ComponentUsageEvent = {
+          sessionType: 'RACE',
+          round: currentEvent.round,
+          circuitId: currentEvent.circuit_id,
+          trackName: currentEvent.track_name,
+          distanceKm: gpKm,
+          wearDeltaPct: wear,
+          conditionBeforePct: comp.condition_pct,
+          conditionAfterPct: newPct,
+          timestamp: new Date().toISOString(),
+        }
+        const updatedHistory = [...(comp.usage_history || []), usageEvt]
+        await pb.collection('car_components').update(comp.id, {
+          condition_pct: newPct,
+          mileage_km: newMileage,
+          usage_history: updatedHistory,
+        })
+      }
     }
 
     // 4. Progresso de P&D

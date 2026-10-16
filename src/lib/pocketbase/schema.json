@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T02:35:24.486Z",
+  "generatedAt": "2026-10-16T02:45:28.975Z",
   "collections": [
     {
       "name": "users",
@@ -565,11 +565,74 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "physical_serial",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "season_year",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "driver_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "manufacturer_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ACTIVE_INSTALLED", "AVAILABLE_BENCH", "MAINTENANCE", "RETIRED"]
+        },
+        {
+          "name": "mileage_km",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "penalty_incurred",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "usage_history",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "installation_history",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "is_installed",
+          "type": "bool",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
         "CREATE INDEX idx_car_comp_career ON car_components (career_id)",
-        "CREATE INDEX idx_car_comp_team ON car_components (career_id, team_id)"
+        "CREATE INDEX idx_car_comp_team ON car_components (career_id, team_id)",
+        "CREATE INDEX `idx_car_comp_serial` ON `car_components` (physical_serial)",
+        "CREATE INDEX `idx_car_comp_driver_season` ON `car_components` (career_id, driver_id, season_year)"
       ]
     },
     {

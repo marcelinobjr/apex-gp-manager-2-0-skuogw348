@@ -167,3 +167,7 @@ console.log('   - 0 colisões')
 console.log('   - 0 dependências posicionais')
 console.log('   - Placeholder padronizado para IDs desconhecidos')
 console.log('======================================================\n')
+
+// Execução dos 10 testes do sublote QA-GESTAO-05C2
+import { runIsolatedEngineInventoryTests } from '../src/data/engineTests.ts'
+runIsolatedEngineInventoryTests()
