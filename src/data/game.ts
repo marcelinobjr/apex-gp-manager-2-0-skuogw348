@@ -42,8 +42,8 @@ export const managers: ManagerArchetype[] = [
       'Prefere vencer com inteligência',
     ],
     signature: 'Strategy Drives Performance',
-    imageFileName: '01-Estrategista(1).jpg',
-    image: assets.manager('01-Estrategista(1).jpg'),
+    imageFileName: '01-Estrategista.jpg',
+    image: assets.manager('01-Estrategista.jpg'),
     modifiers: [
       { slot: 1, target: 'Estratégia', value: 10, kind: 'bonus', unit: 'profile_modifier_points' },
       { slot: 2, target: 'Finanças', value: 8, kind: 'bonus', unit: 'profile_modifier_points' },
@@ -1716,7 +1716,7 @@ export const circuits: Circuit[] = circuitsRaw.map((c) => ({
   tempoVoltaRefS: c[10],
   altitudeM: c[11],
   imagem: assets.circuit(c[0]),
-  svgPath: `APEX2_circuitos_43/track_${String(c[0]).padStart(2, '0')}.svg`,
+  svgPath: assets.circuit(c[0]),
   observacoes: c[12],
 }))
 

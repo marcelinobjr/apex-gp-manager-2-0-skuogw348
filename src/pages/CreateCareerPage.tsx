@@ -573,6 +573,10 @@ export default function CreateCareerWizard() {
                         src={currentManagedTeam.imagem}
                         alt={currentManagedTeam.nome}
                         className="w-20 h-14 object-cover rounded-lg border border-border/40"
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            'https://raw.githubusercontent.com/marcelinobjr/apex-gp-manager-2-0-skuogw348/main/logo_base_programa/Capa.jpg'
+                        }}
                       />
                       <div>
                         <h4 className="font-bold text-white text-base">

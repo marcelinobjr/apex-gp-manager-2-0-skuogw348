@@ -52,7 +52,14 @@ export function Dashboard() {
             style={{ animationDelay: `${index * 60}ms` }}
             key={title}
           >
-            <img src={image} alt="" />
+            <img
+              src={image}
+              alt=""
+              onError={(e) => {
+                e.currentTarget.src =
+                  'https://raw.githubusercontent.com/marcelinobjr/apex-gp-manager-2-0-skuogw348/main/logo_base_programa/Capa.jpg'
+              }}
+            />
             <div />
             <Icon />
             <p>
@@ -73,7 +80,14 @@ export function Dashboard() {
       <div className="circuit-highlights">
         {[circuits[20], circuits[12], circuits[15]].map((circuit, index) => (
           <Link to="/circuitos" key={circuit.id}>
-            <img src={circuit.imagem} alt={circuit.nome} />
+            <img
+              src={circuit.imagem}
+              alt={circuit.nome}
+              onError={(e) => {
+                e.currentTarget.src =
+                  'https://raw.githubusercontent.com/marcelinobjr/apex-gp-manager-2-0-skuogw348/main/logo_base_programa/Capa.jpg'
+              }}
+            />
             <span>ETAPA {String(index + 1).padStart(2, '0')}</span>
             <h3>{circuit.nome}</h3>
             <p>

@@ -116,7 +116,14 @@ export default function Index() {
               style={{ animationDelay: `${index * 60}ms` }}
               key={item.title}
             >
-              <img src={item.image} alt="" />
+              <img
+                src={item.image}
+                alt=""
+                onError={(e) => {
+                  e.currentTarget.src =
+                    'https://raw.githubusercontent.com/marcelinobjr/apex-gp-manager-2-0-skuogw348/main/logo_base_programa/Capa.jpg'
+                }}
+              />
               <div className="module-overlay" />
               <div className="module-icon">
                 <item.icon />

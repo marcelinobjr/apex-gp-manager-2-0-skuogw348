@@ -92,7 +92,14 @@ export default function CatalogPage({ eyebrow, title, description, entries, filt
             key={entry.id}
           >
             <div className="card-media">
-              <img src={entry.image} alt={entry.title} />
+              <img
+                src={entry.image}
+                alt={entry.title}
+                onError={(e) => {
+                  e.currentTarget.src =
+                    'https://raw.githubusercontent.com/marcelinobjr/apex-gp-manager-2-0-skuogw348/main/logo_base_programa/Capa.jpg'
+                }}
+              />
               {entry.badge && <span>{entry.badge}</span>}
             </div>
             <div className="card-body">
@@ -121,7 +128,15 @@ export default function CatalogPage({ eyebrow, title, description, entries, filt
           </SheetHeader>
           {selected && (
             <>
-              <img className="detail-image" src={selected.image} alt={selected.title} />
+              <img
+                className="detail-image"
+                src={selected.image}
+                alt={selected.title}
+                onError={(e) => {
+                  e.currentTarget.src =
+                    'https://raw.githubusercontent.com/marcelinobjr/apex-gp-manager-2-0-skuogw348/main/logo_base_programa/Capa.jpg'
+                }}
+              />
               <div className="detail-stats">
                 {selected.stats.map((stat) => (
                   <div key={stat.label}>
