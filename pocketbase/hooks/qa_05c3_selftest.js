@@ -1,5 +1,6 @@
 // pocketbase/hooks/qa_05c3_selftest.js
 // APEX GP Manager 2.0 - QA-GESTAO-05C3 (v0.0.20)
+// Canonical server-side PocketBase runner for isolated test suite QA-05C3
 // Suíte de testes de aceite em ambiente isolado, executável no SERVIDOR:
 //   POST /backend/v1/qa/05c3   (corpo opcional: { "keep_careers": true })
 //   cron: "0 0 0 * * 6" desativado por padrão (execução manual/diagnóstico)
