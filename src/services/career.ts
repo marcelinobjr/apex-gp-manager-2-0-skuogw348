@@ -306,5 +306,5 @@ export const careerService = {
   },
 }
 
-export { generateDeterministicSeed, careerService, validateFinancialOperation }
+export { validateFinancialOperation }
 export type { FinancialCheckResult }

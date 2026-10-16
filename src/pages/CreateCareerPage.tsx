@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { teams, drivers, engines, managers } from '@/data/game'
 import { careerService } from '@/services/career'
+import { getDefaultRuleset, formatCurrencyFull } from '@/data/ruleset'
 import { getDriverPortrait, DRIVER_PORTRAIT_PLACEHOLDER } from '@/lib/assets'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -141,6 +142,7 @@ export default function CreateCareerWizard() {
 
   const currentManager = managers.find((m) => m.id === selectedManagerId) || managers[0]
   const currentManagedTeam = teams.find((t) => t.id === managedTeamId) || teams[0]
+  const currentRuleset = getDefaultRuleset()
 
   return (
     <div className="career-wizard-container max-w-6xl mx-auto px-4 py-8">
