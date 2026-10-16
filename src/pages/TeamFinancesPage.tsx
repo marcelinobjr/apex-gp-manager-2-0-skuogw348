@@ -96,14 +96,18 @@ export function TeamFinancesPage() {
 
         <div className="rounded-2xl border border-border/50 bg-card/40 p-6 backdrop-blur space-y-2">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-xs font-mono uppercase">Teto de Gastos (Cap Anual)</span>
+            <span className="text-xs font-mono uppercase">
+              Teto Regulamentar{' '}
+              {career.rules_frozen?.rulesetVersion ? `(${career.rules_frozen.rulesetVersion})` : ''}
+            </span>
             <ShieldAlert className="w-5 h-5 text-primary" />
           </div>
           <p className="text-3xl font-black text-foreground">
             ${(state.cost_cap_budget / 1_000_000).toFixed(0)}M
           </p>
           <p className="text-[11px] font-mono text-muted-foreground">
-            Disponível no Teto: ${(costCapRemaining / 1_000_000).toFixed(1)}M
+            Disponível no Teto: ${(costCapRemaining / 1_000_000).toFixed(1)}M (Congelado na
+            Carreira)
           </p>
         </div>
 

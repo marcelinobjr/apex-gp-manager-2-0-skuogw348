@@ -111,8 +111,9 @@ export function TeamProjectsPage() {
         <Sparkles className="w-5 h-5 text-primary shrink-0" />
         <span>
           <strong>Regulamento Técnico INV-06:</strong> Cada projeto consome orçamento do Teto
-          Regulamentar ($135M) e possui distribuição canônica: 70% resultado Normal (+8%), 25%
-          Excelente (+15%), 5% Ruim (+2%).
+          Regulamentar Anual ($
+          {((careerState?.cost_cap_budget || 135_000_000) / 1_000_000).toFixed(0)}M) e possui
+          distribuição canônica: 70% resultado Normal (+8%), 25% Excelente (+15%), 5% Ruim (+2%).
         </span>
       </div>
 

@@ -1,6 +1,12 @@
 import pb from '@/lib/pocketbase/client'
-import { circuits, teams, drivers, structures } from '@/data/game'
-import { careerService, CareerRecord, CareerStateRecord, CareerReceiptRecord } from './career'
+import { circuits, activeCircuits, teams, drivers, structures } from '@/data/game'
+import {
+  careerService,
+  CareerRecord,
+  CareerStateRecord,
+  CareerReceiptRecord,
+  validateFinancialOperation,
+} from './career'
 
 export interface SeasonRecord {
   id: string
@@ -116,9 +122,9 @@ export const teamManagementService = {
     }
 
     if (!season) {
-      // Cria a temporada inicial com os 43 circuitos ou subconjunto configurado
-      // O APEX GP Manager 2.0 possui 43 circuitos no catálogo canônico
-      const initialRounds = circuits.slice(0, 24) // 24 etapas no campeonato canônico
+      // Cria a temporada inicial com circuitos ATIVOS (Adelaide CIR-0033 e Brasília CIR-0041 são inativos)
+      // O APEX GP Manager 2.0 possui 43 circuitos no catálogo canônico, dos quais 41 são ativos
+      const initialRounds = activeCircuits.slice(0, 24) // 24 etapas ativas no campeonato canônico
 
       // Inicializar tabela de pontuação com equipes congeladas
       const driversStandings: DriverStanding[] = []
@@ -299,12 +305,17 @@ export const teamManagementService = {
     const state = await careerService.getCareerState(careerId)
     if (!state) throw new Error('Estado financeiro não encontrado')
 
-    // INV-04: teto e caixa bloqueantes
-    if (state.cash_balance < cost) {
-      throw new Error('Saldo em caixa insuficiente para realizar a manutenção.')
-    }
-    if (state.cost_cap_spent + cost > state.cost_cap_budget) {
-      throw new Error('Operação excede o teto orçamentário anual regulamentar (INV-04).')
+    // INV-04 / INV-05: Validação independente de Caixa e Teto de Gastos regulamentar
+    const check = validateFinancialOperation({
+      cost,
+      currentCash: state.cash_balance,
+      costCapSpent: state.cost_cap_spent,
+      costCapBudget: state.cost_cap_budget,
+      costCapStrict: true,
+    })
+
+    if (!check.allowed) {
+      throw new Error(check.reason || 'Operação financeira não permitida pelas regras da FIA.')
     }
 
     // Atualiza estado canônico
@@ -347,13 +358,19 @@ export const teamManagementService = {
     const state = await careerService.getCareerState(careerId)
     if (!state) throw new Error('Estado da carreira não encontrado')
 
-    // INV-04: Teto e caixa bloqueantes
-    if (state.cash_balance < input.cost) {
-      throw new Error(`Saldo insuficiente: requer $${(input.cost / 1_000_000).toFixed(1)}M.`)
-    }
-    if (state.cost_cap_spent + input.cost > state.cost_cap_budget) {
+    // INV-04 / INV-05: Teto e caixa bloqueantes via validador canônico independente
+    const check = validateFinancialOperation({
+      cost: input.cost,
+      currentCash: state.cash_balance,
+      costCapSpent: state.cost_cap_spent,
+      costCapBudget: state.cost_cap_budget,
+      costCapStrict: true,
+    })
+
+    if (!check.allowed) {
       throw new Error(
-        `Bloqueio de Teto de Gastos (INV-04): o projeto ultrapassa o teto anual de $135M.`,
+        check.reason ||
+          `Bloqueio regulamentar: o projeto não atende aos requisitos de caixa ou teto anual.`,
       )
     }
 
@@ -433,12 +450,20 @@ export const teamManagementService = {
     }
     const cost = costMap[targetLevel] || 10_000_000
 
-    // Validação de teto e caixa (INV-04)
-    if (state.cash_balance < cost) {
-      throw new Error(`Saldo insuficiente: requer $${(cost / 1_000_000).toFixed(1)}M.`)
-    }
-    if (state.cost_cap_spent + cost > state.cost_cap_budget) {
-      throw new Error('Bloqueio regulamentar: o upgrade excede o teto orçamentário anual.')
+    // Validação independente de teto e caixa (INV-04 / INV-05)
+    const check = validateFinancialOperation({
+      cost,
+      currentCash: state.cash_balance,
+      costCapSpent: state.cost_cap_spent,
+      costCapBudget: state.cost_cap_budget,
+      costCapStrict: true,
+    })
+
+    if (!check.allowed) {
+      throw new Error(
+        check.reason ||
+          'Bloqueio regulamentar: o upgrade excede o teto orçamentário ou saldo disponível.',
+      )
     }
 
     const updatedFacilities = {

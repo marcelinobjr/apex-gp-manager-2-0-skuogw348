@@ -1,5 +1,13 @@
 import pb from '@/lib/pocketbase/client'
 import { teams, drivers, engines, managers } from '@/data/game'
+import {
+  VersionedRuleset,
+  FrozenRulesSnapshot,
+  getDefaultRuleset,
+  createFrozenRulesSnapshot,
+  validateFinancialOperation,
+  FinancialCheckResult,
+} from '@/data/ruleset'
 
 export interface CareerRecord {
   id: string
@@ -45,15 +53,7 @@ export interface CareerReceiptRecord {
   updated: string
 }
 
-export interface FrozenRules {
-  financialCapAmount: number // Teto de gastos: ex 135.000.000 USD
-  financialCapStrict: boolean // INV-04 bloqueante
-  scoringSystem: string // 25-18-15-12-10-8-6-4-2-1
-  pointsForFastestLap: boolean
-  engineFreeze: boolean
-  freeToPlayDoesNotAlterPhysics: boolean // INV-07
-  minWeightKg: number
-}
+export type FrozenRules = FrozenRulesSnapshot
 
 export interface FrozenTeamConfig {
   teamId: string
@@ -171,18 +171,10 @@ export const careerService = {
       // Nenhum recibo anterior com essa chave, prossegue para criação limpa
     }
 
-    // 2. Montagem dos dados canônicos congelados
+    // 2. Montagem dos dados canônicos congelados via Regulamento Versionado
     const masterSeed = generateDeterministicSeed(input.name, input.initialYear, input.managedTeamId)
-
-    const rulesFrozen: FrozenRules = {
-      financialCapAmount: 135_000_000, // 135M USD / EUR
-      financialCapStrict: true, // INV-04
-      scoringSystem: '25-18-15-12-10-8-6-4-2-1',
-      pointsForFastestLap: true,
-      engineFreeze: false,
-      freeToPlayDoesNotAlterPhysics: true, // INV-07
-      minWeightKg: 798,
-    }
+    const activeRuleset: VersionedRuleset = getDefaultRuleset()
+    const rulesFrozen: FrozenRules = createFrozenRulesSnapshot(activeRuleset)
 
     // Equipes e forças participantes congeladas (50% - 150%, passo 5%)
     const teamsConfigFrozen: FrozenTeamConfig[] = input.selectedTeamIds.map((teamId) => {
@@ -313,3 +305,6 @@ export const careerService = {
     return { career: createdCareer, state: createdState }
   },
 }
+
+export { generateDeterministicSeed, careerService, validateFinancialOperation }
+export type { FinancialCheckResult }

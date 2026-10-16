@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Building2, CarFront, CircuitBoard, Gauge, Trophy, Users } from 'lucide-react'
-import { circuits, drivers, engines, structures, teams } from '@/data/game'
+import { circuits, activeCircuits, drivers, engines, structures, teams } from '@/data/game'
 import { useAuth } from '@/contexts/AuthContext'
 import CatalogPage from '@/components/CatalogPage'
 import type { CatalogEntry } from '@/components/CatalogPage'
@@ -109,13 +109,14 @@ export function Dashboard() {
 const circuitEntries: CatalogEntry[] = circuits.map((c) => ({
   id: c.id,
   title: c.nome,
-  subtitle: c.pais,
+  subtitle: c.pais + (!c.active ? ' (Histórico / Inativo)' : ''),
   image: c.imagem,
-  badge: c.codigoPais,
+  badge: c.active ? c.codigoPais : 'INATIVO',
+  accent: c.active ? undefined : '#ef4444',
   stats: [
     { label: 'Extensão', value: `${c.extensaoKm} km` },
     { label: 'Voltas', value: c.voltas },
-    { label: 'Tipo', value: c.tipo },
+    { label: 'Status', value: c.active ? 'Ativo no Calendário' : 'Inativo (Histórico)' },
   ],
 }))
 const teamEntries: CatalogEntry[] = teams.map((t) => ({
@@ -178,7 +179,7 @@ export const CircuitsPage = () => (
   <CatalogPage
     eyebrow="CALENDÁRIO MUNDIAL"
     title="Circuitos"
-    description="Explore todas as pistas do universo APEX."
+    description={`Catálogo histórico oficial com 43 traçados (${activeCircuits.length} ativos para campeonatos e 2 históricos preservados).`}
     entries={circuitEntries}
     filters={[...new Set(circuits.map((c) => c.pais))]}
   />

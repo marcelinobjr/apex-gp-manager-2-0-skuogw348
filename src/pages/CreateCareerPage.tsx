@@ -730,7 +730,10 @@ export default function CreateCareerWizard() {
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between py-1 border-b border-border/20">
                     <span className="text-muted-foreground">Teto Orçamentário (Cost Cap):</span>
-                    <strong className="text-white font-mono">$135.000.000 / ano</strong>
+                    <strong className="text-white font-mono">
+                      {formatCurrencyFull(currentRuleset.financialCapAmount)}
+                      {currentRuleset.isProvisional ? ' (Provisório)' : ''}
+                    </strong>
                   </div>
                   <div className="flex justify-between py-1 border-b border-border/20">
                     <span className="text-muted-foreground">Proteção Financeira (INV-05):</span>
