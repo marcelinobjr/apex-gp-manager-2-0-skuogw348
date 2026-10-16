@@ -80,6 +80,7 @@ onRecordUpdateRequest((e) => {
   const carIndex = e.record.get('car_index')
   const careerId = e.record.get('career_id')
   const physicalSerial = e.record.get('physical_serial')
+  const seasonYear = e.record.get('season_year') || 2026
   const recordId = e.record.id
 
   if (compType === 'engine' && isInstalled) {
@@ -102,20 +103,22 @@ onRecordUpdateRequest((e) => {
       }
     }
 
-    // Verificar se já existe outra unidade de motor instalada NO MESMO CARRO
+    // Verificar se já existe outra unidade de motor instalada NO MESMO CARRO na MESMA TEMPORADA
     const activeSameCar = $app.findRecordsByFilter(
       'car_components',
-      'career_id = {:careerId} && car_index = {:carIdx} && component_type = "engine" && is_installed = true && id != {:recId}',
+      'career_id = {:careerId} && car_index = {:carIdx} && season_year = {:year} && component_type = "engine" && is_installed = true && id != {:recId}',
       '',
       1,
       0,
-      { careerId: careerId, carIdx: carIndex, recId: recordId },
+      { careerId: careerId, carIdx: carIndex, year: seasonYear, recId: recordId },
     )
     if (activeSameCar.length > 0) {
       throw new BadRequestError(
         'Bloqueio Operacional: O Carro #' +
           carIndex +
-          ' já possui uma unidade de potência instalada. Remova a unidade atual antes de instalar outra.',
+          ' já possui uma unidade de potência instalada na temporada ' +
+          seasonYear +
+          '. Remova a unidade atual antes de instalar outra.',
       )
     }
   }

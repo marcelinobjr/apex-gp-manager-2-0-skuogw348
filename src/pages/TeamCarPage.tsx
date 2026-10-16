@@ -37,6 +37,7 @@ export function TeamCarPage() {
   const [state, setState] = useState<CareerStateRecord | null>(null)
   const [components, setComponents] = useState<CarComponentRecord[]>([])
   const [activeCarTab, setActiveCarTab] = useState<1 | 2>(1)
+  const [selectedYear, setSelectedYear] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [repairingId, setRepairingId] = useState<string | null>(null)
   const [substitutingId, setSubstitutingId] = useState<string | null>(null)
@@ -50,11 +51,15 @@ export function TeamCarPage() {
       setLoading(true)
       const list = await careerService.listUserCareers()
       if (list.length > 0) {
-        setCareer(list[0])
-        const s = await careerService.getCareerState(list[0].id)
+        const c = list[0]
+        setCareer(c)
+        const s = await careerService.getCareerState(c.id)
         setState(s)
-        const comps = await teamManagementService.getCarComponents(list[0].id)
+        const comps = await teamManagementService.getCarComponents(c.id)
         setComponents(comps)
+        if (selectedYear === null) {
+          setSelectedYear(c.current_year)
+        }
       }
     } catch {
       toast.error('Erro ao carregar dados do carro')
@@ -75,10 +80,29 @@ export function TeamCarPage() {
     )
   }
 
-  const carComponents = components.filter((c) => c.car_index === activeCarTab)
+  // Lista de anos com inventário registrado para seleção histórica
+  const recordedYears = Array.from(
+    new Set(components.map((c) => c.season_year || career.current_year)),
+  ).sort((a, b) => b - a)
+  if (recordedYears.length === 0) recordedYears.push(career.current_year)
+
+  const activeYear = selectedYear ?? career.current_year
+  const isHistoricYear = activeYear !== career.current_year
+
+  const carComponents = components.filter(
+    (c) => c.car_index === activeCarTab && (c.season_year || career.current_year) === activeYear,
+  )
   const aeroAndChassis = carComponents.filter((c) => c.component_type !== 'engine')
   const enginesPool = carComponents.filter((c) => c.component_type === 'engine')
   const installedEngine = enginesPool.find((e) => e.is_installed)
+
+  // Motores utilizados na temporada ativa (que já acumularam km ou histórico de pista)
+  const usedEnginesCount = enginesPool.filter(
+    (e) => (e.mileage_km || 0) > 0 || (e.usage_history && e.usage_history.length > 0),
+  ).length
+  const availableBenchCount = enginesPool.filter(
+    (e) => e.status === 'AVAILABLE_BENCH' || (!e.is_installed && e.status !== 'RETIRED'),
+  ).length
 
   const handleRepair = async (comp: CarComponentRecord) => {
     // Custo de revisão/manutenção proporcional ao desgaste (INV-04)
@@ -168,29 +192,72 @@ export function TeamCarPage() {
         </p>
       </div>
 
-      {/* Seletor Carro 1 / Carro 2 */}
-      <div className="flex items-center gap-3 border-b border-border/40 pb-4">
-        <button
-          onClick={() => setActiveCarTab(1)}
-          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
-            activeCarTab === 1
-              ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-              : 'bg-card/50 text-muted-foreground hover:bg-card hover:text-foreground border border-border/40'
-          }`}
-        >
-          <Cpu className="w-4 h-4" /> Carro #1 (Cockpit Piloto 1)
-        </button>
-        <button
-          onClick={() => setActiveCarTab(2)}
-          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
-            activeCarTab === 2
-              ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-              : 'bg-card/50 text-muted-foreground hover:bg-card hover:text-foreground border border-border/40'
-          }`}
-        >
-          <Cpu className="w-4 h-4" /> Carro #2 (Cockpit Piloto 2)
-        </button>
+      {/* Seletor Carro 1 / Carro 2 e Seletor de Temporada (Histórico vs Ativo) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-4">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setActiveCarTab(1)}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+              activeCarTab === 1
+                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                : 'bg-card/50 text-muted-foreground hover:bg-card hover:text-foreground border border-border/40'
+            }`}
+          >
+            <Cpu className="w-4 h-4" /> Carro #1 (Cockpit Piloto 1)
+          </button>
+          <button
+            onClick={() => setActiveCarTab(2)}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+              activeCarTab === 2
+                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                : 'bg-card/50 text-muted-foreground hover:bg-card hover:text-foreground border border-border/40'
+            }`}
+          >
+            <Cpu className="w-4 h-4" /> Carro #2 (Cockpit Piloto 2)
+          </button>
+        </div>
+
+        {/* Seletor de Ano da Temporada */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono text-muted-foreground">Temporada:</span>
+          <div className="flex items-center gap-1.5 bg-card/60 p-1 rounded-xl border border-border/40">
+            {recordedYears.map((yr) => (
+              <button
+                key={yr}
+                onClick={() => setSelectedYear(yr)}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+                  activeYear === yr
+                    ? 'bg-primary text-primary-foreground shadow'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {yr} {yr === career.current_year ? '(Atual)' : '(Histórico)'}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {isHistoricYear && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs font-mono text-amber-300 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4 shrink-0" />
+            <span>
+              <strong>Visualizando Inventário Histórico Arquivado ({activeYear}):</strong> Todas as
+              peças e motores deste ano estão preservados com sua quilometragem e desgastes finais
+              originais.
+            </span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-amber-500/40 text-amber-300 text-xs h-7"
+            onClick={() => setSelectedYear(career.current_year)}
+          >
+            Voltar para {career.current_year} (Atual)
+          </Button>
+        </div>
+      )}
 
       {/* Destaque da Unidade de Potência Montada no Carro */}
       <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 backdrop-blur">
@@ -262,15 +329,33 @@ export function TeamCarPage() {
             </p>
           </div>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
-            disabled={allocatingExtra}
-            onClick={handleAllocateExtraEngine}
-          >
-            <PlusCircle className="w-4 h-4 mr-1.5" /> Adicionar 5ª PU Extra ($1.5M)
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 bg-card/60 px-3 py-1.5 rounded-xl border border-border/40 text-xs font-mono">
+              <span>
+                Utilizados em Pista:{' '}
+                <strong className={usedEnginesCount >= 4 ? 'text-amber-400' : 'text-emerald-400'}>
+                  {usedEnginesCount} / 4
+                </strong>
+              </span>
+              <span>•</span>
+              <span>
+                Disponíveis no Banco:{' '}
+                <strong className="text-foreground">{availableBenchCount}</strong>
+              </span>
+            </div>
+
+            {!isHistoricYear && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+                disabled={allocatingExtra}
+                onClick={handleAllocateExtraEngine}
+              >
+                <PlusCircle className="w-4 h-4 mr-1.5" /> Adicionar 5ª PU Extra ($1.5M)
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

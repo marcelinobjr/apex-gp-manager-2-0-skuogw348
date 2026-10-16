@@ -169,5 +169,8 @@ console.log('   - Placeholder padronizado para IDs desconhecidos')
 console.log('======================================================\n')
 
 // Execução dos 10 testes do sublote QA-GESTAO-05C2
-import { runIsolatedEngineInventoryTests } from '../src/data/engineTests.ts'
+import { runIsolatedEngineInventoryTests, runSeasonResetTests } from '../src/data/engineTests.ts'
 runIsolatedEngineInventoryTests()
+
+// Execução dos 8 testes do lote SEASON-RESET-01 (virada de temporada)
+runSeasonResetTests()

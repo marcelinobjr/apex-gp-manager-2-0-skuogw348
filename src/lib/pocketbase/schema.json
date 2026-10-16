@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T02:45:28.975Z",
+  "generatedAt": "2026-10-16T03:04:29.320Z",
   "collections": [
     {
       "name": "users",
@@ -632,7 +632,9 @@
         "CREATE INDEX idx_car_comp_career ON car_components (career_id)",
         "CREATE INDEX idx_car_comp_team ON car_components (career_id, team_id)",
         "CREATE INDEX `idx_car_comp_serial` ON `car_components` (physical_serial)",
-        "CREATE INDEX `idx_car_comp_driver_season` ON `car_components` (career_id, driver_id, season_year)"
+        "CREATE INDEX `idx_car_comp_driver_season` ON `car_components` (career_id, driver_id, season_year)",
+        "CREATE INDEX `idx_car_comp_career_year_status` ON `car_components` (career_id, season_year, status)",
+        "CREATE INDEX `idx_car_comp_pu_season` ON `car_components` (career_id, season_year, car_index, component_type, engine_unit_number)"
       ]
     },
     {

@@ -759,10 +759,14 @@ export const teamManagementService = {
 
   /**
    * Lista os componentes mecânicos da carreira do jogador
+   * Permite filtrar por seasonYear opcional para separar a temporada ativa do inventário histórico
    */
-  async getCarComponents(careerId: string): Promise<CarComponentRecord[]> {
+  async getCarComponents(careerId: string, seasonYear?: number): Promise<CarComponentRecord[]> {
+    const filter = seasonYear
+      ? `career_id = "${careerId}" && season_year = ${seasonYear}`
+      : `career_id = "${careerId}"`
     return await pb.collection('car_components').getFullList<CarComponentRecord>({
-      filter: `career_id = "${careerId}"`,
+      filter,
       sort: 'car_index,component_type,engine_unit_number',
     })
   },
@@ -1215,29 +1219,221 @@ export const teamManagementService = {
   },
 
   /**
-   * Transição anual de temporada (INV-02: novo ano = IDs, calendário e ledger novos)
+   * Transição anual de temporada e reinicialização de inventário (SEASON-RESET-01, INV-02)
+   * Garante idempotência rigorosa via recibo canônico.
+   * Regras:
+   * 1. Preservar integralmente o histórico da temporada encerrada (desgaste, km, penalidades).
+   * 2. Arquivar os componentes da temporada anterior como 'RETIRED' e is_installed = false.
+   * 3. Calcular bônus de desenvolvimento técnico conquistado em P&D para o novo carro.
+   * 4. Gerar novos componentes estruturais e 4 novas unidades físicas de potência por piloto (ano novo).
+   * 5. Reiniciar quilometragem em 0 km, condição em 100% (desgaste 0%) e contadores em zero.
+   * 6. Executar exatamente uma vez por virada; se chamada repetidamente, retorna sem duplicar.
    */
-  async closeAndTransitionSeason(career: CareerRecord, currentSeason: SeasonRecord): Promise<void> {
+  async closeAndTransitionSeason(
+    career: CareerRecord,
+    currentSeason: SeasonRecord,
+  ): Promise<{ newYear: number; componentsCreated: number }> {
     const userId = pb.authStore.record?.id
     if (!userId) throw new Error('Não autenticado')
 
     const nextYear = currentSeason.year + 1
     const idempotencyKey = `SEASON_TRANSITION_${career.id}_${currentSeason.year}_TO_${nextYear}`
 
-    // 1. Marca temporada atual como encerrada e imutável
-    await pb.collection('seasons').update(currentSeason.id, {
-      status: 'COMPLETED',
+    // 1. Verificação de idempotência no ledger de recibos canônicos
+    const existingTransition = await pb
+      .collection('career_receipts')
+      .getFullList<CareerReceiptRecord>({
+        filter: `idempotency_key = "${idempotencyKey}"`,
+      })
+    if (existingTransition.length > 0) {
+      return {
+        newYear: nextYear,
+        componentsCreated: 0,
+      }
+    }
+
+    // 2. Marca a temporada atual como encerrada (COMPLETED) se ainda não estiver
+    if (currentSeason.status !== 'COMPLETED') {
+      await pb.collection('seasons').update(currentSeason.id, {
+        status: 'COMPLETED',
+      })
+    }
+
+    // 3. Obter todos os componentes da temporada atual para arquivamento histórico seguro
+    const oldComponents = await pb.collection('car_components').getFullList<CarComponentRecord>({
+      filter: `career_id = "${career.id}" && season_year = ${currentSeason.year}`,
     })
 
-    // 2. Incrementa ano na carreira
+    // Arquivar componentes anteriores preservando todos os atributos originais
+    for (const oldComp of oldComponents) {
+      if (oldComp.is_installed || oldComp.status !== 'RETIRED') {
+        const hist: ComponentInstallationEvent[] = oldComp.installation_history || []
+        await pb.collection('car_components').update(oldComp.id, {
+          is_installed: false,
+          status: 'RETIRED',
+          installation_history: [
+            ...hist,
+            {
+              car_index: oldComp.car_index,
+              action: 'REMOVED_TO_BENCH',
+              timestamp: new Date().toISOString(),
+              reason: `Arquivamento histórico regulamentar de fim de temporada ${currentSeason.year}`,
+            },
+          ],
+        })
+      }
+    }
+
+    // 4. Calcular evolução técnica herdada de P&D concluídos durante o ano
+    const completedRD = await pb.collection('rd_projects').getFullList<RDProjectRecord>({
+      filter: `career_id = "${career.id}" && status = "COMPLETED"`,
+    })
+
+    // Mapear níveis técnicos evoluídos por tipo de componente
+    const baseLevels: Record<ComponentType, number> = {
+      front_wing: 1,
+      rear_wing: 1,
+      floor: 1,
+      sidepods: 1,
+      suspension: 1,
+      brakes: 1,
+      gearbox: 1,
+      engine: 1,
+    }
+
+    // Preservar níveis técnicos máximos alcançados nos componentes da temporada anterior
+    for (const oldComp of oldComponents) {
+      if (oldComp.level > (baseLevels[oldComp.component_type] || 1)) {
+        baseLevels[oldComp.component_type] = oldComp.level
+      }
+    }
+
+    // Aplicar progressão derivada de projetos de P&D concluídos
+    for (const rd of completedRD) {
+      if (rd.category === 'aero') {
+        baseLevels.front_wing = Math.min(5, (baseLevels.front_wing || 1) + 1)
+        baseLevels.rear_wing = Math.min(5, (baseLevels.rear_wing || 1) + 1)
+        baseLevels.floor = Math.min(5, (baseLevels.floor || 1) + 1)
+      } else if (rd.category === 'chassis') {
+        baseLevels.sidepods = Math.min(5, (baseLevels.sidepods || 1) + 1)
+        baseLevels.suspension = Math.min(5, (baseLevels.suspension || 1) + 1)
+        baseLevels.brakes = Math.min(5, (baseLevels.brakes || 1) + 1)
+      } else if (rd.category === 'powertrain') {
+        baseLevels.gearbox = Math.min(5, (baseLevels.gearbox || 1) + 1)
+      }
+    }
+
+    // 5. Verificar se já existem componentes gerados para o novo ano (idempotência preventiva)
+    const existingNewYearComps = await pb
+      .collection('car_components')
+      .getFullList<CarComponentRecord>({
+        filter: `career_id = "${career.id}" && season_year = ${nextYear}`,
+      })
+
+    let createdCount = 0
+    if (existingNewYearComps.length === 0) {
+      // Localizar pilotos e fornecedor de motor congelados
+      const managedConfig = career.teams_config_frozen?.find(
+        (tc) => tc.teamId === career.managed_team_id,
+      )
+      const d1Id = managedConfig?.driver1Id || ''
+      const d2Id = managedConfig?.driver2Id || ''
+      const engineManufacturerId = managedConfig?.engineId || 'ENG-0005'
+      const shortId = career.id.substring(0, 8)
+
+      const baseParts: Array<{ type: ComponentType; name: string }> = [
+        { type: 'front_wing', name: 'Asa Dianteira' },
+        { type: 'rear_wing', name: 'Asa Traseira' },
+        { type: 'floor', name: 'Assoalho Venturi' },
+        { type: 'sidepods', name: 'Laterais & Radiadores' },
+        { type: 'suspension', name: 'Suspensão Pushrod' },
+        { type: 'brakes', name: 'Sistema de Freios Carbono' },
+        { type: 'gearbox', name: 'Transmissão & Câmbio 8 Velocidades' },
+      ]
+
+      // Criar inventário limpo para ambos os carros (Carro 1 e Carro 2)
+      for (const carIdx of [1, 2] as const) {
+        const driverId = carIdx === 1 ? d1Id : d2Id
+
+        // Componentes do carro (0% desgaste, 100% integridade, 0 km, nível evoluído preservado)
+        for (const part of baseParts) {
+          const compLevel = baseLevels[part.type] || 1
+          await pb.collection('car_components').create({
+            career_id: career.id,
+            user_id: userId,
+            team_id: career.managed_team_id,
+            car_index: carIdx,
+            component_type: part.type,
+            component_name: `${part.name} C${carIdx}`,
+            level: compLevel,
+            condition_pct: 100,
+            physical_serial: `PART-${shortId}-${nextYear}-C${carIdx}-${part.type.toUpperCase()}`,
+            season_year: nextYear,
+            driver_id: driverId,
+            manufacturer_id: career.managed_team_id,
+            status: 'ACTIVE_INSTALLED',
+            mileage_km: 0,
+            penalty_incurred: false,
+            is_installed: true,
+            usage_history: [],
+            installation_history: [
+              {
+                car_index: carIdx,
+                action: 'INITIAL_INSTALL',
+                timestamp: new Date().toISOString(),
+                reason: `Montagem do novo chassi para a Temporada ${nextYear}`,
+              },
+            ],
+          })
+          createdCount++
+        }
+
+        // Exatamente 4 motores físicos novos por piloto (0% desgaste, 100% integridade, 0 km)
+        for (let m = 1; m <= 4; m++) {
+          const isInitialInstalled = m === 1
+          await pb.collection('car_components').create({
+            career_id: career.id,
+            user_id: userId,
+            team_id: career.managed_team_id,
+            car_index: carIdx,
+            component_type: 'engine',
+            component_name: `Unidade de Potência F1-PU #${m} (Carro ${carIdx})`,
+            level: 1,
+            condition_pct: 100,
+            engine_unit_number: m,
+            physical_serial: `PU-${shortId}-${nextYear}-C${carIdx}-U${m}`,
+            season_year: nextYear,
+            driver_id: driverId,
+            manufacturer_id: engineManufacturerId,
+            status: isInitialInstalled ? 'ACTIVE_INSTALLED' : 'AVAILABLE_BENCH',
+            mileage_km: 0,
+            penalty_incurred: false,
+            is_installed: isInitialInstalled,
+            usage_history: [],
+            installation_history: [
+              {
+                car_index: carIdx,
+                action: isInitialInstalled ? 'INITIAL_INSTALL' : 'BENCH_ALLOCATION',
+                timestamp: new Date().toISOString(),
+                reason: isInitialInstalled
+                  ? `Unidade 1 montada no cockpit para a abertura da Temporada ${nextYear}`
+                  : `Unidade alocada no banco regulamentar (Quota 4 PUs - Temporada ${nextYear})`,
+              },
+            ],
+          })
+          createdCount++
+        }
+      }
+    }
+
+    // 6. Atualizar a carreira para o novo ano
     await pb.collection('careers').update(career.id, {
       current_year: nextYear,
     })
 
-    // 3. Atualiza ledger com renovação de teto de gastos e patrocínios via endpoint seguro
+    // 7. Atualizar ledger financeiro e renovar teto de gastos regulamentar
     const state = await careerService.getCareerState(career.id)
     if (state) {
-      // Receita anual de patrocínio adicionada ao caixa sem elevar teto
       await careerService.executeFinancialOperation({
         careerId: career.id,
         idempotencyKey: `${idempotencyKey}_SPONSOR`,
@@ -1249,7 +1445,7 @@ export const teamManagementService = {
         metadata: { year: nextYear, amount: state.sponsor_income_annual },
       })
 
-      // Zera gastos do teto para o novo ano regulamentar
+      // Reinicia gastos do teto anual para zero no novo ano regulamentar
       await pb.collection('career_state').update(state.id, {
         cost_cap_spent: 0,
         reserved_cash: 0,
@@ -1257,14 +1453,25 @@ export const teamManagementService = {
       })
     }
 
-    // 4. Cria recibo de encerramento
+    // 8. Gravar recibo canônico imutável de transição de temporada
     await pb.collection('career_receipts').create<CareerReceiptRecord>({
       career_id: career.id,
       user_id: userId,
       action_type: 'SEASON_TRANSITION',
       idempotency_key: idempotencyKey,
-      payload: { previousYear: currentSeason.year, newYear: nextYear },
+      payload: {
+        previousYear: currentSeason.year,
+        newYear: nextYear,
+        componentsCreated: createdCount,
+        inheritedEvolution: baseLevels,
+        timestamp: new Date().toISOString(),
+      },
       status: 'EXECUTED',
     })
+
+    return {
+      newYear: nextYear,
+      componentsCreated: createdCount,
+    }
   },
 }
