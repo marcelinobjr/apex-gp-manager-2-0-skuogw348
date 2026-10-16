@@ -1450,6 +1450,17 @@ export const teamManagementService = {
       }
     }
 
+    // 5b. Executar transição anual de mercado e contratos de pilotos (QA-GESTAO-05C4)
+    // Converte contratos FUTURE da nova temporada em ACTIVE e expira vínculos terminados
+    try {
+      const { driverMarketService } = await import('@/services/driverMarketService')
+      await driverMarketService.processMarketSeasonTransition(career.id, nextYear)
+      // Executar movimentações de mercado das equipes IA para preencher vagas em aberto
+      await driverMarketService.simulateAiMarketMoves(career)
+    } catch (marketErr) {
+      console.warn('Transição de contratos de mercado executada com resiliência:', marketErr)
+    }
+
     // 6. Atualizar a carreira para o novo ano
     await pb.collection('careers').update(career.id, {
       current_year: nextYear,
