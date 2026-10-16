@@ -29,10 +29,16 @@ export function Dashboard() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            to="/carreira/nova"
+            to="/equipe"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm shadow-lg shadow-primary/20 transition-all"
           >
-            <Trophy className="w-4 h-4" /> Criar Carreira
+            <CarFront className="w-4 h-4" /> Minha Equipe
+          </Link>
+          <Link
+            to="/carreira/nova"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card/60 hover:bg-card text-foreground font-bold text-sm transition-all"
+          >
+            <Trophy className="w-4 h-4" /> Nova Carreira
           </Link>
           <Avatar className="dash-avatar">
             <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>

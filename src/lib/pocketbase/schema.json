@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T00:26:18.101Z",
+  "generatedAt": "2026-10-16T00:40:15.798Z",
   "collections": [
     {
       "name": "users",
@@ -296,6 +296,361 @@
       "indexes": [
         "CREATE UNIQUE INDEX idx_career_receipts_key ON career_receipts (idempotency_key)",
         "CREATE INDEX idx_career_receipts_career ON career_receipts (career_id)"
+      ]
+    },
+    {
+      "name": "seasons",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && user_id = @request.auth.id",
+        "view": "@request.auth.id != '' && user_id = @request.auth.id",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != '' && user_id = @request.auth.id",
+        "delete": "@request.auth.id != '' && user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "career_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "careers"
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "year",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "current_round",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "total_rounds",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "drivers_standings",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "constructors_standings",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_seasons_career ON seasons (career_id)",
+        "CREATE UNIQUE INDEX idx_seasons_career_year ON seasons (career_id, year)"
+      ]
+    },
+    {
+      "name": "season_events",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && user_id = @request.auth.id",
+        "view": "@request.auth.id != '' && user_id = @request.auth.id",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != '' && user_id = @request.auth.id",
+        "delete": "@request.auth.id != '' && user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "career_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "careers"
+        },
+        {
+          "name": "season_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "seasons"
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "round",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "circuit_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "track_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "country_code",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "results",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "weather",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_season_events_season ON season_events (season_id)",
+        "CREATE UNIQUE INDEX idx_season_events_round ON season_events (season_id, round)"
+      ]
+    },
+    {
+      "name": "car_components",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && user_id = @request.auth.id",
+        "view": "@request.auth.id != '' && user_id = @request.auth.id",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != '' && user_id = @request.auth.id",
+        "delete": "@request.auth.id != '' && user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "career_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "careers"
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "team_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "car_index",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "component_type",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "component_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "level",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "condition_pct",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "engine_unit_number",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_car_comp_career ON car_components (career_id)",
+        "CREATE INDEX idx_car_comp_team ON car_components (career_id, team_id)"
+      ]
+    },
+    {
+      "name": "rd_projects",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && user_id = @request.auth.id",
+        "view": "@request.auth.id != '' && user_id = @request.auth.id",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != '' && user_id = @request.auth.id",
+        "delete": "@request.auth.id != '' && user_id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "career_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "careers"
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "cost",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "duration_rounds",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "rounds_remaining",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "outcome_quality",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "attribute_boost",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_rd_proj_career ON rd_projects (career_id)",
+        "CREATE INDEX idx_rd_proj_status ON rd_projects (career_id, status)"
       ]
     }
   ]

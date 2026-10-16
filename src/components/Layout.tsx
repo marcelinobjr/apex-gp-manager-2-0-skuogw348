@@ -26,7 +26,8 @@ import { toast } from 'sonner'
 
 const navItems = [
   ['/painel', 'Painel'],
-  ['/carreira/nova', 'Nova Carreira'],
+  ['/equipe', 'Minha Equipe'],
+  ['/temporada', 'Temporada'],
   ['/circuitos', 'Circuitos'],
   ['/equipes', 'Equipes'],
   ['/pilotos', 'Pilotos'],

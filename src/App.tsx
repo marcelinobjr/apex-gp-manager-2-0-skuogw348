@@ -17,6 +17,13 @@ import {
   TeamsPage,
 } from '@/pages/GamePages'
 import CreateCareerWizard from '@/pages/CreateCareerPage'
+import { TeamHubPage } from '@/pages/TeamHubPage'
+import { TeamDriversPage } from '@/pages/TeamDriversPage'
+import { TeamCarPage } from '@/pages/TeamCarPage'
+import { TeamProjectsPage } from '@/pages/TeamProjectsPage'
+import { TeamFacilitiesPage } from '@/pages/TeamFacilitiesPage'
+import { TeamFinancesPage } from '@/pages/TeamFinancesPage'
+import { SeasonPage } from '@/pages/SeasonPage'
 
 const Protected = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute>{children}</ProtectedRoute>
@@ -50,6 +57,62 @@ export default function App() {
                 element={
                   <Protected>
                     <CreateCareerWizard />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/equipe"
+                element={
+                  <Protected>
+                    <TeamHubPage />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/equipe/pilotos"
+                element={
+                  <Protected>
+                    <TeamDriversPage />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/equipe/carro"
+                element={
+                  <Protected>
+                    <TeamCarPage />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/equipe/projetos"
+                element={
+                  <Protected>
+                    <TeamProjectsPage />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/equipe/instalacoes"
+                element={
+                  <Protected>
+                    <TeamFacilitiesPage />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/equipe/financas"
+                element={
+                  <Protected>
+                    <TeamFinancesPage />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/temporada"
+                element={
+                  <Protected>
+                    <SeasonPage />
                   </Protected>
                 }
               />
