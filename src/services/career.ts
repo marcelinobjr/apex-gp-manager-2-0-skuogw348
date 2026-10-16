@@ -33,6 +33,8 @@ export interface CareerStateRecord {
   cash_balance: number
   cost_cap_budget: number
   cost_cap_spent: number
+  reserved_cash?: number
+  reserved_cost_cap?: number
   team_morale: number
   sponsor_income_annual: number
   contracts_ledger: ContractsLedger
@@ -303,6 +305,51 @@ export const careerService = {
     }
 
     return { career: createdCareer, state: createdState }
+  },
+
+  /**
+   * Executa operação financeira de forma atômica e com validação no servidor (INV-04 / INV-05)
+   * Chamando o endpoint seguro do backend /backend/v1/finances/execute-operation
+   */
+  async executeFinancialOperation(params: {
+    careerId: string
+    idempotencyKey: string
+    actionType: string
+    cost?: number
+    income?: number
+    countsAgainstCostCap?: boolean
+    description?: string
+    metadata?: Record<string, unknown>
+  }): Promise<{
+    state: CareerStateRecord
+    receipt: CareerReceiptRecord
+    idempotentReplayed: boolean
+  }> {
+    const res = await pb.send<{
+      success: boolean
+      idempotent_replayed: boolean
+      receipt: CareerReceiptRecord
+      state: CareerStateRecord
+      message: string
+    }>('/backend/v1/finances/execute-operation', {
+      method: 'POST',
+      body: {
+        career_id: params.careerId,
+        idempotency_key: params.idempotencyKey,
+        action_type: params.actionType,
+        cost: params.cost || 0,
+        income: params.income || 0,
+        counts_against_cost_cap: params.countsAgainstCostCap !== false,
+        description: params.description || '',
+        metadata: params.metadata || {},
+      },
+    })
+
+    return {
+      state: res.state,
+      receipt: res.receipt,
+      idempotentReplayed: res.idempotent_replayed,
+    }
   },
 }
 

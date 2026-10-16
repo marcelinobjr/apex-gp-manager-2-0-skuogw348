@@ -127,12 +127,16 @@ export interface FinancialCheckResult {
     passed: boolean
     required: number
     available: number
+    reserved: number
+    effectiveAvailable: number
   }
   costCapCheck: {
     passed: boolean
     cost: number
     spent: number
     capBudget: number
+    reservedCap: number
+    remainingCap: number
     projectedSpent: number
     isCapStrict: boolean
   }
@@ -144,22 +148,43 @@ export function validateFinancialOperation(params: {
   costCapSpent: number
   costCapBudget: number
   costCapStrict?: boolean
+  reservedCash?: number
+  reservedCostCap?: number
+  countsAgainstCostCap?: boolean
 }): FinancialCheckResult {
-  const { cost, currentCash, costCapSpent, costCapBudget, costCapStrict = true } = params
+  const {
+    cost,
+    currentCash,
+    costCapSpent,
+    costCapBudget,
+    costCapStrict = true,
+    reservedCash = 0,
+    reservedCostCap = 0,
+    countsAgainstCostCap = true,
+  } = params
 
-  const cashPassed = currentCash >= cost
-  const projectedSpent = costCapSpent + cost
-  const capPassed = !costCapStrict || projectedSpent <= costCapBudget
+  const effectiveAvailableCash = currentCash - reservedCash
+  const cashPassed = effectiveAvailableCash >= cost
+
+  const remainingCap = costCapBudget - (costCapSpent + reservedCostCap)
+  const projectedSpent = costCapSpent + (countsAgainstCostCap ? cost : 0)
+  const capPassed = !costCapStrict || !countsAgainstCostCap || cost <= remainingCap
 
   let reason: string | undefined
   if (!cashPassed) {
     reason = `Saldo em caixa insuficiente: requer $${(cost / 1_000_000).toFixed(2)}M, disponível $${(
-      currentCash / 1_000_000
-    ).toFixed(2)}M.`
+      effectiveAvailableCash / 1_000_000
+    ).toFixed(
+      2,
+    )}M${reservedCash > 0 ? ` (reservas: $${(reservedCash / 1_000_000).toFixed(2)}M)` : ''}.`
   } else if (!capPassed) {
     reason = `Bloqueio de Teto de Gastos (INV-04): a operação totalizaria $${(
       projectedSpent / 1_000_000
-    ).toFixed(2)}M, excedendo o teto anual de $${(costCapBudget / 1_000_000).toFixed(0)}M.`
+    ).toFixed(
+      2,
+    )}M, excedendo o teto anual de $${(costCapBudget / 1_000_000).toFixed(0)}M (margem restante: $${(
+      remainingCap / 1_000_000
+    ).toFixed(2)}M).`
   }
 
   return {
@@ -169,12 +194,16 @@ export function validateFinancialOperation(params: {
       passed: cashPassed,
       required: cost,
       available: currentCash,
+      reserved: reservedCash,
+      effectiveAvailable: effectiveAvailableCash,
     },
     costCapCheck: {
       passed: capPassed,
-      cost,
+      cost: countsAgainstCostCap ? cost : 0,
       spent: costCapSpent,
       capBudget: costCapBudget,
+      reservedCap: reservedCostCap,
+      remainingCap,
       projectedSpent,
       isCapStrict: costCapStrict,
     },

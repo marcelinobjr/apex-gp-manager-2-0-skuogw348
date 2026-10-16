@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T02:16:00.416Z",
+  "generatedAt": "2026-10-16T02:35:24.486Z",
   "collections": [
     {
       "name": "users",
@@ -222,6 +222,18 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "reserved_cash",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "reserved_cost_cap",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [

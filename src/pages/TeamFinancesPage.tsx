@@ -125,8 +125,41 @@ export function TeamFinancesPage() {
         </div>
       </div>
 
+      {/* Reservas e Compromissos Financeiros */}
+      {state.reserved_cash || state.reserved_cost_cap ? (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-2">
+          <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <ShieldAlert className="w-4 h-4" />
+            <span>Compromissos e Reservas Retidas</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono text-muted-foreground">
+            <div>
+              Caixa Reservado (Salários/Contratos):{' '}
+              <strong className="text-foreground">
+                ${((state.reserved_cash || 0) / 1_000_000).toFixed(2)}M
+              </strong>
+              <span className="block text-[11px] text-amber-300">
+                Caixa Efetivamente Disponível: $
+                {((state.cash_balance - (state.reserved_cash || 0)) / 1_000_000).toFixed(2)}M
+              </span>
+            </div>
+            <div>
+              Teto Reservado:{' '}
+              <strong className="text-foreground">
+                ${((state.reserved_cost_cap || 0) / 1_000_000).toFixed(2)}M
+              </strong>
+              <span className="block text-[11px] text-amber-300">
+                Margem Livre Efetiva: $
+                {((costCapRemaining - (state.reserved_cost_cap || 0)) / 1_000_000).toFixed(2)}M
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {/* Barra de Progresso do Teto Orçamentário */}
       <div className="rounded-2xl border border-border/50 bg-card/40 p-6 backdrop-blur space-y-4">
+        {' '}
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-base">Utilização do Teto de Gastos (Cost Cap Audit)</h3>
@@ -138,7 +171,6 @@ export function TeamFinancesPage() {
             {costCapPct.toFixed(1)}% consumido
           </span>
         </div>
-
         <div className="w-full h-3 rounded-full bg-secondary overflow-hidden">
           <div
             className={`h-full transition-all ${
@@ -147,7 +179,6 @@ export function TeamFinancesPage() {
             style={{ width: `${costCapPct}%` }}
           />
         </div>
-
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2 text-xs font-mono">
           <div>
             <span className="text-muted-foreground block">Gasto Acumulado:</span>

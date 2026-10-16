@@ -305,23 +305,33 @@ export const teamManagementService = {
     const state = await careerService.getCareerState(careerId)
     if (!state) throw new Error('Estado financeiro não encontrado')
 
-    // INV-04 / INV-05: Validação independente de Caixa e Teto de Gastos regulamentar
+    // INV-04 / INV-05: Validação independente de Caixa e Teto de Gastos regulamentar no cliente
     const check = validateFinancialOperation({
       cost,
       currentCash: state.cash_balance,
       costCapSpent: state.cost_cap_spent,
       costCapBudget: state.cost_cap_budget,
       costCapStrict: true,
+      reservedCash: state.reserved_cash || 0,
+      reservedCostCap: state.reserved_cost_cap || 0,
+      countsAgainstCostCap: true,
     })
 
     if (!check.allowed) {
       throw new Error(check.reason || 'Operação financeira não permitida pelas regras da FIA.')
     }
 
-    // Atualiza estado canônico
-    await pb.collection('career_state').update(state.id, {
-      cash_balance: state.cash_balance - cost,
-      cost_cap_spent: state.cost_cap_spent + cost,
+    const idempotencyKey = `REPAIR_${careerId}_${componentId}_${Date.now()}`
+
+    // Executa operação financeira atômica no servidor
+    await careerService.executeFinancialOperation({
+      careerId,
+      idempotencyKey,
+      actionType: 'COMPONENT_REPAIR',
+      cost,
+      countsAgainstCostCap: true,
+      description: `Revisão de componente mecânico ${componentId}`,
+      metadata: { componentId, cost },
     })
 
     // Restaura condição para 100%
@@ -358,13 +368,16 @@ export const teamManagementService = {
     const state = await careerService.getCareerState(careerId)
     if (!state) throw new Error('Estado da carreira não encontrado')
 
-    // INV-04 / INV-05: Teto e caixa bloqueantes via validador canônico independente
+    // INV-04 / INV-05: Teto e caixa bloqueantes via validador canônico independente no cliente
     const check = validateFinancialOperation({
       cost: input.cost,
       currentCash: state.cash_balance,
       costCapSpent: state.cost_cap_spent,
       costCapBudget: state.cost_cap_budget,
       costCapStrict: true,
+      reservedCash: state.reserved_cash || 0,
+      reservedCostCap: state.reserved_cost_cap || 0,
+      countsAgainstCostCap: true,
     })
 
     if (!check.allowed) {
@@ -386,10 +399,22 @@ export const teamManagementService = {
       boostVal = 2
     }
 
-    // 1. Debita financeiro
-    await pb.collection('career_state').update(state.id, {
-      cash_balance: state.cash_balance - input.cost,
-      cost_cap_spent: state.cost_cap_spent + input.cost,
+    const idempotencyKey = `RD_${careerId}_${input.category}_${Date.now()}`
+
+    // 1. Debita financeiro de forma atômica no servidor com validação do ledger
+    await careerService.executeFinancialOperation({
+      careerId,
+      idempotencyKey,
+      actionType: 'RD_PROJECT_STARTED',
+      cost: input.cost,
+      countsAgainstCostCap: true,
+      description: `Início de Projeto de P&D: ${input.name} (${input.category})`,
+      metadata: {
+        name: input.name,
+        category: input.category,
+        durationRounds: input.durationRounds,
+        outcome,
+      },
     })
 
     // 2. Grava projeto de P&D
@@ -404,16 +429,6 @@ export const teamManagementService = {
       status: 'IN_PROGRESS',
       outcome_quality: outcome,
       attribute_boost: { [input.category]: boostVal },
-    })
-
-    // 3. Recibo de idempotência
-    await pb.collection('career_receipts').create<CareerReceiptRecord>({
-      career_id: careerId,
-      user_id: userId,
-      action_type: 'RD_PROJECT_STARTED',
-      idempotency_key: `RD_${careerId}_${Date.now()}_${input.category}`,
-      payload: { projectId: project.id, cost: input.cost, outcome },
-      status: 'EXECUTED',
     })
 
     return project
@@ -450,13 +465,16 @@ export const teamManagementService = {
     }
     const cost = costMap[targetLevel] || 10_000_000
 
-    // Validação independente de teto e caixa (INV-04 / INV-05)
+    // Validação independente de teto e caixa (INV-04 / INV-05) no cliente
     const check = validateFinancialOperation({
       cost,
       currentCash: state.cash_balance,
       costCapSpent: state.cost_cap_spent,
       costCapBudget: state.cost_cap_budget,
       costCapStrict: true,
+      reservedCash: state.reserved_cash || 0,
+      reservedCostCap: state.reserved_cost_cap || 0,
+      countsAgainstCostCap: true,
     })
 
     if (!check.allowed) {
@@ -466,28 +484,35 @@ export const teamManagementService = {
       )
     }
 
+    const idempotencyKey = `FAC_${careerId}_${facilityCode}_L${targetLevel}_${Date.now()}`
+
+    // 1. Executa operação financeira no servidor
+    const finRes = await careerService.executeFinancialOperation({
+      careerId,
+      idempotencyKey,
+      actionType: 'FACILITY_UPGRADED',
+      cost,
+      countsAgainstCostCap: true,
+      description: `Upgrade de Instalação: ${facilityCode} para Nível ${targetLevel}`,
+      metadata: { facilityCode, targetLevel, cost },
+    })
+
     const updatedFacilities = {
       ...(state.facilities_state || {}),
       [facilityCode]: targetLevel,
     }
 
+    // 2. Atualiza os níveis de instalações e moral no career_state
     const updatedState = await pb.collection('career_state').update<CareerStateRecord>(state.id, {
-      cash_balance: state.cash_balance - cost,
-      cost_cap_spent: state.cost_cap_spent + cost,
       facilities_state: updatedFacilities,
       team_morale: Math.min(100, state.team_morale + 4), // Bônus de moral com nova infraestrutura
     })
 
-    await pb.collection('career_receipts').create<CareerReceiptRecord>({
-      career_id: careerId,
-      user_id: userId,
-      action_type: 'FACILITY_UPGRADED',
-      idempotency_key: `FAC_${careerId}_${facilityCode}_L${targetLevel}_${Date.now()}`,
-      payload: { facilityCode, targetLevel, cost },
-      status: 'EXECUTED',
-    })
-
-    return updatedState
+    return {
+      ...updatedState,
+      cash_balance: finRes.state.cash_balance,
+      cost_cap_spent: finRes.state.cost_cap_spent,
+    }
   },
 
   /**
@@ -500,8 +525,27 @@ export const teamManagementService = {
     salaryAnnual: number,
     durationYears: number,
   ): Promise<CareerStateRecord> {
+    const userId = pb.authStore.record?.id
+    if (!userId) throw new Error('Não autenticado')
+
     const state = await careerService.getCareerState(careerId)
     if (!state) throw new Error('Estado da carreira não encontrado')
+
+    const previousContract = state.contracts_ledger?.[slot]
+    const previousSalary = previousContract?.salaryAnnual || 0
+
+    // Reserva financeira de compromisso futuro para o salário contratado
+    // Nova reserva é a diferença se houver aumento de compromisso
+    const salaryDiff = Math.max(0, salaryAnnual - previousSalary)
+    const currentReservedCash = state.reserved_cash || 0
+    const newReservedCash = currentReservedCash + salaryDiff
+
+    // Validação preventiva se o caixa suporta a reserva de compromisso
+    if (state.cash_balance < newReservedCash) {
+      throw new Error(
+        `Saldo insuficiente para reservar compromisso salarial de $${(salaryAnnual / 1_000_000).toFixed(1)}M/ano.`,
+      )
+    }
 
     const newLedger = {
       ...state.contracts_ledger,
@@ -512,8 +556,28 @@ export const teamManagementService = {
       },
     }
 
+    const idempotencyKey = `CONTRACT_${careerId}_${slot}_${newDriverId}_${Date.now()}`
+
+    // Registra recibo da contratação/renovação
+    await pb.collection('career_receipts').create<CareerReceiptRecord>({
+      career_id: careerId,
+      user_id: userId,
+      action_type: 'DRIVER_CONTRACT_UPDATED',
+      idempotency_key: idempotencyKey,
+      payload: {
+        slot,
+        newDriverId,
+        previousDriverId: previousContract?.driverId,
+        salaryAnnual,
+        durationYears,
+        reservedCashAdded: salaryDiff,
+      },
+      status: 'EXECUTED',
+    })
+
     return await pb.collection('career_state').update<CareerStateRecord>(state.id, {
       contracts_ledger: newLedger,
+      reserved_cash: newReservedCash,
     })
   },
 
@@ -674,12 +738,26 @@ export const teamManagementService = {
       current_year: nextYear,
     })
 
-    // 3. Atualiza ledger com renovação de teto de gastos e patrocínios
+    // 3. Atualiza ledger com renovação de teto de gastos e patrocínios via endpoint seguro
     const state = await careerService.getCareerState(career.id)
     if (state) {
+      // Receita anual de patrocínio adicionada ao caixa sem elevar teto
+      await careerService.executeFinancialOperation({
+        careerId: career.id,
+        idempotencyKey: `${idempotencyKey}_SPONSOR`,
+        actionType: 'SPONSOR_ANNUAL_INCOME',
+        cost: 0,
+        income: state.sponsor_income_annual,
+        countsAgainstCostCap: false,
+        description: `Receita anual de patrocínio para a temporada ${nextYear}`,
+        metadata: { year: nextYear, amount: state.sponsor_income_annual },
+      })
+
+      // Zera gastos do teto para o novo ano regulamentar
       await pb.collection('career_state').update(state.id, {
-        cost_cap_spent: 0, // Zera gastos do teto para o novo ano
-        cash_balance: state.cash_balance + state.sponsor_income_annual, // Nova parcela de patrocinador anual
+        cost_cap_spent: 0,
+        reserved_cash: 0,
+        reserved_cost_cap: 0,
       })
     }
 
