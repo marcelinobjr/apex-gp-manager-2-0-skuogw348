@@ -242,24 +242,25 @@ routerAdd('POST', '/backend/v1/facilities/upgrade', (c) => {
     },
   ]
 
-  const record = $app.collection('facility_projects').create({
-    career_id: careerId,
-    user_id: userId,
-    facility_code: facilityCode,
-    facility_name: meta.name,
-    from_level: currentLevel,
-    to_level: targetLevel,
-    cost_cash: spec.cash,
-    cost_cap: spec.cap,
-    rounds_remaining: spec.rounds,
-    duration_rounds: spec.rounds,
-    status: 'CONSTRUCTION',
-    effect_target_service: meta.consumer,
-    effect_summary: meta.effect,
-    pending_integration: meta.pendingIntegration,
-    reserve_key: reserveKey,
-    history: history,
-  })
+  const facProjectsCol = $app.findCollectionByNameOrId('facility_projects')
+  const record = new Record(facProjectsCol)
+  record.set('career_id', careerId)
+  record.set('user_id', userId)
+  record.set('facility_code', facilityCode)
+  record.set('facility_name', meta.name)
+  record.set('from_level', currentLevel)
+  record.set('to_level', targetLevel)
+  record.set('cost_cash', spec.cash)
+  record.set('cost_cap', spec.cap)
+  record.set('rounds_remaining', spec.rounds)
+  record.set('duration_rounds', spec.rounds)
+  record.set('status', 'CONSTRUCTION')
+  record.set('effect_target_service', meta.consumer)
+  record.set('effect_summary', meta.effect)
+  record.set('pending_integration', meta.pendingIntegration)
+  record.set('reserve_key', reserveKey)
+  record.set('history', history)
+  $app.save(record)
 
   return c.json(200, {
     success: true,

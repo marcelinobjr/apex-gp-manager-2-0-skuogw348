@@ -156,15 +156,17 @@ routerAdd('POST', '/backend/v1/qa/05c3', (c) => {
       thermalManagement: 60,
       chassisReliability: 60,
     }
-    return txApp.collection('team_technical_state').create({
-      career_id: cid,
-      user_id: uid,
-      team_id: teamId,
-      season_year: seasonYear,
-      effective_attributes: baseline,
-      baseline_attributes: baseline,
-      source_ledger: [],
-    })
+    const col = txApp.findCollectionByNameOrId('team_technical_state')
+    const rec = new Record(col)
+    rec.set('career_id', cid)
+    rec.set('user_id', uid)
+    rec.set('team_id', teamId)
+    rec.set('season_year', seasonYear)
+    rec.set('effective_attributes', baseline)
+    rec.set('baseline_attributes', baseline)
+    rec.set('source_ledger', [])
+    txApp.save(rec)
+    return rec
   }
   function applyGain(txApp, cid, uid, teamId, seasonYear, targets, gainPct, projectId) {
     const techRecord = ensureTechState(txApp, cid, uid, teamId, seasonYear)
@@ -190,35 +192,42 @@ routerAdd('POST', '/backend/v1/qa/05c3', (c) => {
     return applied
   }
   function makeProject(app, cid, uid, name, category, cost, strategy, allocations) {
-    return app.collection('rd_projects').create({
-      career_id: cid,
-      user_id: uid,
-      name: name,
-      category: category,
-      cost: cost,
-      duration_rounds: 3,
-      rounds_remaining: 3,
-      status: 'IN_PROGRESS',
-      status_canonical: 'RESEARCHING',
-      target_attributes: JSON.stringify(
+    const col = app.findCollectionByNameOrId('rd_projects')
+    const rec = new Record(col)
+    rec.set('career_id', cid)
+    rec.set('user_id', uid)
+    rec.set('name', name)
+    rec.set('category', category)
+    rec.set('cost', cost)
+    rec.set('duration_rounds', 3)
+    rec.set('rounds_remaining', 3)
+    rec.set('status', 'IN_PROGRESS')
+    rec.set('status_canonical', 'RESEARCHING')
+    rec.set(
+      'target_attributes',
+      JSON.stringify(
         category === 'aero'
           ? ['aeroDownforce', 'aeroEfficiency']
           : ['mechanicalGrip', 'chassisBalance'],
       ),
-      risk_strategy: strategy,
-      project_seed:
-        'RDSEED_' +
+    )
+    rec.set('risk_strategy', strategy)
+    rec.set(
+      'project_seed',
+      'RDSEED_' +
         hash32(cid + '|' + name + '|' + category)
           .toString(16)
           .toUpperCase(),
-      spent_cash: 0,
-      spend_cap_used: 0,
-      released_cash: 0,
-      released_cap: 0,
-      progress_pct: 0,
-      facility_allocations: allocations || {},
-      state_history: [],
-    })
+    )
+    rec.set('spent_cash', 0)
+    rec.set('spend_cap_used', 0)
+    rec.set('released_cash', 0)
+    rec.set('released_cap', 0)
+    rec.set('progress_pct', 0)
+    rec.set('facility_allocations', allocations || {})
+    rec.set('state_history', [])
+    app.save(rec)
+    return rec
   }
   function rollOutcome(seedStr, strategy, facilityScore, investmentScore) {
     const OUTCOME_TABLE = {
@@ -296,18 +305,19 @@ routerAdd('POST', '/backend/v1/qa/05c3', (c) => {
     // ---- setup: usuário efêmero A (jogador) e B (IA) com carreiras isoladas ----
     const usersCollection = $app.findCollectionByNameOrId('users')
     const suffix = hash32(String(Date.now()) + Math.random()).toString(16)
-    userA = $app.collection('users').create({
-      email: 'qa05c3_a_' + suffix + '@apex-test.invalid',
-      password: 'Qa05c3!' + suffix,
-      verified: true,
-      name: 'QA05C3-A',
-    })
-    userB = $app.collection('users').create({
-      email: 'qa05c3_b_' + suffix + '@apex-test.invalid',
-      password: 'Qa05c3!' + suffix,
-      verified: true,
-      name: 'QA05C3-B',
-    })
+    userA = new Record(usersCollection)
+    userA.setEmail('qa05c3_a_' + suffix + '@apex-test.invalid')
+    userA.setPassword('Qa05c3!' + suffix)
+    userA.setVerified(true)
+    userA.set('name', 'QA05C3-A')
+    $app.save(userA)
+
+    userB = new Record(usersCollection)
+    userB.setEmail('qa05c3_b_' + suffix + '@apex-test.invalid')
+    userB.setPassword('Qa05c3!' + suffix)
+    userB.setVerified(true)
+    userB.set('name', 'QA05C3-B')
+    $app.save(userB)
     cleanupIds.push({ collection: 'users', id: userA.id })
     cleanupIds.push({ collection: 'users', id: userB.id })
 
@@ -321,7 +331,7 @@ routerAdd('POST', '/backend/v1/qa/05c3', (c) => {
       rec.set('universe_type', 'REAL')
       rec.set('manager_archetype_id', 'balanced')
       rec.set('managed_team_id', 'team_0006')
-      rec.set('managed_team_power_factor', 1)
+      rec.set('managed_team_power_factor', 100)
       rec.set('master_seed', 'QA05C3SEED-' + suffix + '-' + nameSuffix)
       rec.set('rules_frozen', { financialCapAmount: 135000000 })
       $app.save(rec)
@@ -629,25 +639,26 @@ routerAdd('POST', '/backend/v1/qa/05c3', (c) => {
     {
       // Componente fabricado (READY) no banco de peças, sem instalação
       const serial1 = 'PART-QA05C3-' + suffix + '-READY'
-      const compReady = $app.collection('car_components').create({
-        career_id: careerA.id,
-        user_id: userA.id,
-        team_id: 'team_0006',
-        car_index: 0,
-        component_type: 'front_wing',
-        component_name: 'Asa Dianteira (QA T5 READY)',
-        level: 1,
-        condition_pct: 100,
-        physical_serial: serial1,
-        season_year: 2026,
-        manufacturer_id: 'team_0006',
-        status: 'AVAILABLE_BENCH',
-        mileage_km: 0,
-        penalty_incurred: false,
-        is_installed: false,
-        usage_history: [],
-        installation_history: [],
-      })
+      const compCol = $app.findCollectionByNameOrId('car_components')
+      const compReady = new Record(compCol)
+      compReady.set('career_id', careerA.id)
+      compReady.set('user_id', userA.id)
+      compReady.set('team_id', 'team_0006')
+      compReady.set('car_index', 1)
+      compReady.set('component_type', 'front_wing')
+      compReady.set('component_name', 'Asa Dianteira (QA T5 READY)')
+      compReady.set('level', 1)
+      compReady.set('condition_pct', 100)
+      compReady.set('physical_serial', serial1)
+      compReady.set('season_year', 2026)
+      compReady.set('manufacturer_id', 'team_0006')
+      compReady.set('status', 'AVAILABLE_BENCH')
+      compReady.set('mileage_km', 0)
+      compReady.set('penalty_incurred', false)
+      compReady.set('is_installed', false)
+      compReady.set('usage_history', [])
+      compReady.set('installation_history', [])
+      $app.save(compReady)
       cleanupIds.push({ collection: 'car_components', id: compReady.id })
       evidence.components.push({
         test: 'T5',
@@ -677,25 +688,25 @@ routerAdd('POST', '/backend/v1/qa/05c3', (c) => {
       const techBefore = ensureTechState($app, careerA.id, userA.id, 'team_0006', 2026)
       const attrsBefore = JSON.parse(techBefore.get('effective_attributes') || '{}') || {}
       const serial2 = 'PART-QA05C3-' + suffix + '-INST'
-      const compNew = $app.collection('car_components').create({
-        career_id: careerA.id,
-        user_id: userA.id,
-        team_id: 'team_0006',
-        car_index: 1,
-        component_type: 'front_wing',
-        component_name: 'Asa Dianteira (QA T6 INSTALADA)',
-        level: 1,
-        condition_pct: 97,
-        physical_serial: serial2,
-        season_year: 2026,
-        manufacturer_id: 'team_0006',
-        status: 'AVAILABLE_BENCH',
-        mileage_km: 0,
-        penalty_incurred: false,
-        is_installed: false,
-        usage_history: [],
-        installation_history: [],
-      })
+      const compNew = new Record(compCol)
+      compNew.set('career_id', careerA.id)
+      compNew.set('user_id', userA.id)
+      compNew.set('team_id', 'team_0006')
+      compNew.set('car_index', 1)
+      compNew.set('component_type', 'front_wing')
+      compNew.set('component_name', 'Asa Dianteira (QA T6 INSTALADA)')
+      compNew.set('level', 1)
+      compNew.set('condition_pct', 97)
+      compNew.set('physical_serial', serial2)
+      compNew.set('season_year', 2026)
+      compNew.set('manufacturer_id', 'team_0006')
+      compNew.set('status', 'AVAILABLE_BENCH')
+      compNew.set('mileage_km', 0)
+      compNew.set('penalty_incurred', false)
+      compNew.set('is_installed', false)
+      compNew.set('usage_history', [])
+      compNew.set('installation_history', [])
+      $app.save(compNew)
       cleanupIds.push({ collection: 'car_components', id: compNew.id })
       const applied = applyGain(
         $app,

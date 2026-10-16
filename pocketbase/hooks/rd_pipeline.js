@@ -265,39 +265,40 @@ routerAdd('POST', '/backend/v1/rd/propose', (c) => {
   for (const code of Object.keys(need)) allocations[code] = need[code]
 
   const now = new Date().toISOString()
-  const project = $app.collection('rd_projects').create({
-    career_id: careerId,
-    user_id: userId,
-    name: name,
-    category: category,
-    cost: cost,
-    duration_rounds: durationRounds,
-    rounds_remaining: durationRounds,
-    status: 'IN_PROGRESS',
-    status_canonical: 'RESERVED',
-    target_attributes: JSON.stringify(targets),
-    risk_strategy: strategy,
-    project_seed: projectSeed,
-    spent_cash: 0,
-    spend_cap_used: 0,
-    released_cash: 0,
-    released_cap: 0,
-    progress_pct: 0,
-    facility_allocations: allocations,
-    state_history: [
-      {
-        state: 'PROPOSED',
-        at: now,
-        note: 'Projeto definido: objetivo, atributos-alvo, custo, prazo e risco.',
-      },
-      {
-        state: 'RESERVED',
-        at: now,
-        note:
-          'Orçamento e capacidade operacional reservados ($' + (cost / 1000000).toFixed(2) + 'M).',
-      },
-    ],
-  })
+  const rdProjectsCol = $app.findCollectionByNameOrId('rd_projects')
+  const project = new Record(rdProjectsCol)
+  project.set('career_id', careerId)
+  project.set('user_id', userId)
+  project.set('name', name)
+  project.set('category', category)
+  project.set('cost', cost)
+  project.set('duration_rounds', durationRounds)
+  project.set('rounds_remaining', durationRounds)
+  project.set('status', 'IN_PROGRESS')
+  project.set('status_canonical', 'RESERVED')
+  project.set('target_attributes', JSON.stringify(targets))
+  project.set('risk_strategy', strategy)
+  project.set('project_seed', projectSeed)
+  project.set('spent_cash', 0)
+  project.set('spend_cap_used', 0)
+  project.set('released_cash', 0)
+  project.set('released_cap', 0)
+  project.set('progress_pct', 0)
+  project.set('facility_allocations', allocations)
+  project.set('state_history', [
+    {
+      state: 'PROPOSED',
+      at: now,
+      note: 'Projeto definido: objetivo, atributos-alvo, custo, prazo e risco.',
+    },
+    {
+      state: 'RESERVED',
+      at: now,
+      note:
+        'Orçamento e capacidade operacional reservados ($' + (cost / 1000000).toFixed(2) + 'M).',
+    },
+  ])
+  $app.save(project)
 
   return c.json(200, { success: true, project: project, reserve_key: reserveKey })
 })
@@ -938,32 +939,33 @@ routerAdd('POST', '/backend/v1/rd/complete-manufacturing', (c) => {
     Math.min(100, Math.round(Number(resultDetail.initialCondition || 96)) + facBonus - 20),
   )
 
-  const created = $app.collection('car_components').create({
-    career_id: careerId,
-    user_id: userId,
-    team_id: career.get('managed_team_id'),
-    car_index: 0, // 0 = banco de peças aguardando instalação
-    component_type: pick.type,
-    component_name: pick.name + ' (' + project.get('name') + ')',
-    level: 1,
-    condition_pct: conditionStart,
-    physical_serial: serial,
-    season_year: seasonYear,
-    manufacturer_id: career.get('managed_team_id'),
-    status: 'AVAILABLE_BENCH',
-    mileage_km: 0,
-    penalty_incurred: false,
-    is_installed: false,
-    usage_history: [],
-    installation_history: [
-      {
-        car_index: 0,
-        action: 'BENCH_ALLOCATION',
-        timestamp: new Date().toISOString(),
-        reason: 'Componente fabricado pelo projeto de P&D "' + project.get('name') + '"',
-      },
-    ],
-  })
+  const carComponentsCol = $app.findCollectionByNameOrId('car_components')
+  const created = new Record(carComponentsCol)
+  created.set('career_id', careerId)
+  created.set('user_id', userId)
+  created.set('team_id', career.get('managed_team_id'))
+  created.set('car_index', 1) // banco de peças associado ao carro de referência
+  created.set('component_type', pick.type)
+  created.set('component_name', pick.name + ' (' + project.get('name') + ')')
+  created.set('level', 1)
+  created.set('condition_pct', conditionStart)
+  created.set('physical_serial', serial)
+  created.set('season_year', seasonYear)
+  created.set('manufacturer_id', career.get('managed_team_id'))
+  created.set('status', 'AVAILABLE_BENCH')
+  created.set('mileage_km', 0)
+  created.set('penalty_incurred', false)
+  created.set('is_installed', false)
+  created.set('usage_history', [])
+  created.set('installation_history', [
+    {
+      car_index: 0,
+      action: 'BENCH_ALLOCATION',
+      timestamp: new Date().toISOString(),
+      reason: 'Componente fabricado pelo projeto de P&D "' + project.get('name') + '"',
+    },
+  ])
+  $app.save(created)
 
   project.set('component_type', pick.type)
   project.set('component_name', pick.name)
@@ -1037,15 +1039,17 @@ routerAdd('POST', '/backend/v1/rd/install', (c) => {
         chassisReliability: 75,
       }
     }
-    return txApp.collection('team_technical_state').create({
-      career_id: cid,
-      user_id: uid,
-      team_id: teamId,
-      season_year: seasonYear,
-      effective_attributes: baseline,
-      baseline_attributes: baseline,
-      source_ledger: [],
-    })
+    const techCol = txApp.findCollectionByNameOrId('team_technical_state')
+    const techRec = new Record(techCol)
+    techRec.set('career_id', cid)
+    techRec.set('user_id', uid)
+    techRec.set('team_id', teamId)
+    techRec.set('season_year', seasonYear)
+    techRec.set('effective_attributes', baseline)
+    techRec.set('baseline_attributes', baseline)
+    techRec.set('source_ledger', [])
+    txApp.save(techRec)
+    return techRec
   }
   function pushHistory(project, state, note) {
     const history = JSON.parse(project.get('state_history') || '[]') || []
