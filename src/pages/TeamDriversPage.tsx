@@ -12,7 +12,7 @@ import {
 import { careerService, CareerRecord, CareerStateRecord } from '@/services/career'
 import { teamManagementService } from '@/services/teamManagement'
 import { drivers } from '@/data/game'
-import { assets } from '@/lib/assets'
+import { assets, getDriverPortrait, DRIVER_PORTRAIT_PLACEHOLDER } from '@/lib/assets'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -124,11 +124,11 @@ export function TeamDriversPage() {
 
           <div className="flex items-center gap-5">
             <img
-              src={d1?.imagem || assets.driver(1)}
-              alt=""
+              src={d1 ? d1.imagem : getDriverPortrait(state.contracts_ledger?.driver1?.driverId)}
+              alt={d1?.nome || 'Cockpit 1'}
               className="w-20 h-20 rounded-xl object-cover border border-border/50 bg-black/40"
               onError={(e) => {
-                e.currentTarget.src = assets.branding.cover
+                e.currentTarget.src = DRIVER_PORTRAIT_PLACEHOLDER
               }}
             />
             <div className="space-y-1">
@@ -189,11 +189,11 @@ export function TeamDriversPage() {
 
           <div className="flex items-center gap-5">
             <img
-              src={d2?.imagem || assets.driver(2)}
-              alt=""
+              src={d2 ? d2.imagem : getDriverPortrait(state.contracts_ledger?.driver2?.driverId)}
+              alt={d2?.nome || 'Cockpit 2'}
               className="w-20 h-20 rounded-xl object-cover border border-border/50 bg-black/40"
               onError={(e) => {
-                e.currentTarget.src = assets.branding.cover
+                e.currentTarget.src = DRIVER_PORTRAIT_PLACEHOLDER
               }}
             />
             <div className="space-y-1">
@@ -271,11 +271,11 @@ export function TeamDriversPage() {
                 >
                   <div className="flex items-center gap-3">
                     <img
-                      src={cand.imagem}
-                      alt=""
+                      src={cand.imagem || getDriverPortrait(cand.id)}
+                      alt={cand.nome}
                       className="w-10 h-10 rounded-lg object-cover border border-border"
                       onError={(e) => {
-                        e.currentTarget.src = assets.branding.cover
+                        e.currentTarget.src = DRIVER_PORTRAIT_PLACEHOLDER
                       }}
                     />
                     <div>

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { teams, drivers, engines, managers } from '@/data/game'
 import { careerService } from '@/services/career'
+import { getDriverPortrait, DRIVER_PORTRAIT_PLACEHOLDER } from '@/lib/assets'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -390,38 +391,58 @@ export default function CreateCareerWizard() {
                           <label className="text-[10px] text-muted-foreground block mb-0.5">
                             Piloto 1:
                           </label>
-                          <select
-                            value={lineup.driver1Id}
-                            onChange={(e) =>
-                              handleUpdateLineup(team.id, 'driver1Id', e.target.value)
-                            }
-                            className="w-full bg-black/60 border border-border/50 rounded px-2 py-1 text-white text-xs"
-                          >
-                            {drivers.map((d) => (
-                              <option key={d.id} value={d.id}>
-                                {d.nome} (OVR {d.overall})
-                              </option>
-                            ))}
-                          </select>
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={getDriverPortrait(lineup.driver1Id)}
+                              alt="Piloto 1"
+                              className="w-7 h-7 rounded-full object-cover border border-border/60 bg-black/40 shrink-0"
+                              onError={(e) => {
+                                e.currentTarget.src = DRIVER_PORTRAIT_PLACEHOLDER
+                              }}
+                            />
+                            <select
+                              value={lineup.driver1Id}
+                              onChange={(e) =>
+                                handleUpdateLineup(team.id, 'driver1Id', e.target.value)
+                              }
+                              className="w-full bg-black/60 border border-border/50 rounded px-2 py-1 text-white text-xs"
+                            >
+                              {drivers.map((d) => (
+                                <option key={d.id} value={d.id}>
+                                  {d.nome} (OVR {d.overall})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
 
                         <div>
                           <label className="text-[10px] text-muted-foreground block mb-0.5">
                             Piloto 2:
                           </label>
-                          <select
-                            value={lineup.driver2Id}
-                            onChange={(e) =>
-                              handleUpdateLineup(team.id, 'driver2Id', e.target.value)
-                            }
-                            className="w-full bg-black/60 border border-border/50 rounded px-2 py-1 text-white text-xs"
-                          >
-                            {drivers.map((d) => (
-                              <option key={d.id} value={d.id}>
-                                {d.nome} (OVR {d.overall})
-                              </option>
-                            ))}
-                          </select>
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={getDriverPortrait(lineup.driver2Id)}
+                              alt="Piloto 2"
+                              className="w-7 h-7 rounded-full object-cover border border-border/60 bg-black/40 shrink-0"
+                              onError={(e) => {
+                                e.currentTarget.src = DRIVER_PORTRAIT_PLACEHOLDER
+                              }}
+                            />
+                            <select
+                              value={lineup.driver2Id}
+                              onChange={(e) =>
+                                handleUpdateLineup(team.id, 'driver2Id', e.target.value)
+                              }
+                              className="w-full bg-black/60 border border-border/50 rounded px-2 py-1 text-white text-xs"
+                            >
+                              {drivers.map((d) => (
+                                <option key={d.id} value={d.id}>
+                                  {d.nome} (OVR {d.overall})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
 
                         <div>

@@ -1,3 +1,19 @@
+import {
+  getDriverPortrait,
+  getDriverPortraitCode,
+  DRIVER_PORTRAIT_BY_ID,
+  DRIVER_PORTRAITS_BASE_URL,
+  DRIVER_PORTRAIT_PLACEHOLDER,
+} from '@/data/driverResolver'
+
+export {
+  getDriverPortrait,
+  getDriverPortraitCode,
+  DRIVER_PORTRAIT_BY_ID,
+  DRIVER_PORTRAITS_BASE_URL,
+  DRIVER_PORTRAIT_PLACEHOLDER,
+}
+
 const asset = (path: string) =>
   `https://raw.githubusercontent.com/marcelinobjr/apex-gp-manager-2-0-skuogw348/main/${path
     .split('/')
@@ -76,9 +92,30 @@ export const assets = {
     const num = typeof index === 'string' ? index.replace(/\D/g, '') : String(index)
     return asset(`emblemas/emblema_${num.padStart(4, '0')}.jpg`)
   },
-  driver: (index: number | string) => {
-    const num = typeof index === 'string' ? index.replace(/\D/g, '') : String(index)
-    return asset(`pilotos/DRV_${num.padStart(4, '0')}.jpg`)
+  /**
+   * Retorna o retrato canônico do piloto.
+   * Suporta o ID canônico 'pil_XXXX' (resolução 1:1 comprovada) ou fallback via resolvedor.
+   */
+  driver: (driverIdOrIndex: number | string) => {
+    if (typeof driverIdOrIndex === 'string' && driverIdOrIndex.startsWith('pil_')) {
+      return getDriverPortrait(driverIdOrIndex)
+    }
+    // Se for string numérica ou number puro, converte para pil_XXXX para resolução canônica
+    const num =
+      typeof driverIdOrIndex === 'string'
+        ? driverIdOrIndex.replace(/\D/g, '')
+        : String(driverIdOrIndex)
+    if (num) {
+      const canonicalId = `pil_${num.padStart(4, '0')}`
+      if (canonicalId in DRIVER_PORTRAIT_BY_ID) {
+        return getDriverPortrait(canonicalId)
+      }
+    }
+    // Caso de ID genérico DRV_XXXX direto
+    if (typeof driverIdOrIndex === 'string' && driverIdOrIndex.startsWith('DRV_')) {
+      return `${DRIVER_PORTRAITS_BASE_URL}/${driverIdOrIndex}.jpg`
+    }
+    return getDriverPortrait(typeof driverIdOrIndex === 'string' ? driverIdOrIndex : undefined)
   },
   engine: (index: number | string) => {
     const num = typeof index === 'string' ? index.replace(/\D/g, '') : String(index)

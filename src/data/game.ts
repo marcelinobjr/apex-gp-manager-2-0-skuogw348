@@ -1,4 +1,4 @@
-import { assets } from '@/lib/assets'
+import { assets, getDriverPortrait } from '@/lib/assets'
 
 // ==========================================
 // 1. MANAGERS & ARQUÉTIPOS (6 Managers)
@@ -3885,7 +3885,7 @@ export const drivers: Driver[] = driversRawData.map((d, index) => {
     ritmo: rPace,
     consistencia: cons,
     ultrapassagem: over,
-    imagem: assets.driver(index + 1),
+    imagem: getDriverPortrait(d.id),
     atributos: {
       qualifyingPace: d.attrs[0],
       racePace: d.attrs[1],

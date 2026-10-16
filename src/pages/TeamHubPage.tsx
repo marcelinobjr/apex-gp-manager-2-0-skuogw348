@@ -23,7 +23,7 @@ import {
   RDProjectRecord,
 } from '@/services/teamManagement'
 import { teams, drivers, circuits, engines } from '@/data/game'
-import { assets } from '@/lib/assets'
+import { assets, getDriverPortrait, DRIVER_PORTRAIT_PLACEHOLDER } from '@/lib/assets'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
@@ -367,11 +367,13 @@ export function TeamHubPage() {
             <div className="flex items-center justify-between p-2.5 rounded-lg bg-black/40 border border-border/30">
               <div className="flex items-center gap-3">
                 <img
-                  src={d1?.imagem || assets.driver(1)}
-                  alt=""
+                  src={
+                    d1 ? d1.imagem : getDriverPortrait(state.contracts_ledger?.driver1?.driverId)
+                  }
+                  alt={d1?.nome || 'Piloto 1'}
                   className="w-9 h-9 rounded-full object-cover border border-border/50"
                   onError={(e) => {
-                    e.currentTarget.src = assets.branding.cover
+                    e.currentTarget.src = DRIVER_PORTRAIT_PLACEHOLDER
                   }}
                 />
                 <div>
@@ -391,11 +393,13 @@ export function TeamHubPage() {
             <div className="flex items-center justify-between p-2.5 rounded-lg bg-black/40 border border-border/30">
               <div className="flex items-center gap-3">
                 <img
-                  src={d2?.imagem || assets.driver(2)}
-                  alt=""
+                  src={
+                    d2 ? d2.imagem : getDriverPortrait(state.contracts_ledger?.driver2?.driverId)
+                  }
+                  alt={d2?.nome || 'Piloto 2'}
                   className="w-9 h-9 rounded-full object-cover border border-border/50"
                   onError={(e) => {
-                    e.currentTarget.src = assets.branding.cover
+                    e.currentTarget.src = DRIVER_PORTRAIT_PLACEHOLDER
                   }}
                 />
                 <div>
