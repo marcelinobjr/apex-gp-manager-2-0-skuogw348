@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T00:40:15.798Z",
+  "generatedAt": "2026-10-16T00:56:44.753Z",
   "collections": [
     {
       "name": "users",
@@ -29,14 +29,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -127,14 +132,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -214,14 +224,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -283,14 +298,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -364,14 +384,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -458,14 +483,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -545,14 +575,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
@@ -638,19 +673,1416 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [
         "CREATE INDEX idx_rd_proj_career ON rd_projects (career_id)",
         "CREATE INDEX idx_rd_proj_status ON rd_projects (career_id, status)"
+      ]
+    },
+    {
+      "name": "teams",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "team_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "code",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "country_code",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "primary_color_hex",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "secondary_color_hex",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "emblem_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "team_image_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "side_view_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "small_logo_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_teams_team_id ON teams (team_id)",
+        "CREATE INDEX idx_teams_display_name ON teams (display_name)"
+      ]
+    },
+    {
+      "name": "drivers",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "driver_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "first_name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "last_name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "short_code",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "nationality_code",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "birth_date",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "preferred_number",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "portrait_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_drivers_driver_id ON drivers (driver_id)",
+        "CREATE INDEX idx_drivers_display_name ON drivers (display_name)"
+      ]
+    },
+    {
+      "name": "circuits",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "circuit_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "country_code",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "city",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "length_km",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "turn_count",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "layout_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "configuracao_tracado",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sentido_corrida",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "abrasividade",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "exigencia_aerodinamica",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "exigencia_motor",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "exigencia_tracao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "exigencia_frenagem",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "carga_lateral",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "recuperacao_energia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "dificuldade_ultrapassagem",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "perda_pit_stop_s",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tempo_volta_ref_s",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "altitude_m",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "observacoes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "svg_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "svg_path",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "track_path_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "svg_track_length_px",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "svg_m_por_px",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "start_finish_progress",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "race_direction",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pit_path_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pit_entry_progress",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pit_exit_progress",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "fonte_dados",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pendencias_validacao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "start_line_progress",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "length_geo_km",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_circuits_circuit_id ON circuits (circuit_id)",
+        "CREATE INDEX idx_circuits_display_name ON circuits (display_name)"
+      ]
+    },
+    {
+      "name": "engines",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "engine_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "country_code",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "power",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "reliability",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "efficiency",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "development_potential",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cost_tier",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "logo_asset_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "logo_file_path",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_engines_engine_id ON engines (engine_id)",
+        "CREATE INDEX idx_engines_display_name ON engines (display_name)"
+      ]
+    },
+    {
+      "name": "managers",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "manager_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "display_order",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "archetype_code",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "headline_quote",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "profile_text",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ideal_for_1",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ideal_for_2",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ideal_for_3",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "signature",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "image_asset_filename",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "is_enabled",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "record_type",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_managers_manager_id ON managers (manager_id)",
+        "CREATE INDEX idx_managers_display_name ON managers (display_name)"
+      ]
+    },
+    {
+      "name": "assets_manifest",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "asset_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "file_path",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "mime_type",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "alt_text",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "width_px",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "height_px",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "asset_version",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sha256",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "source_reference",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "rights_status",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_assets_manifest_asset_id ON assets_manifest (asset_id)",
+        "CREATE INDEX idx_assets_manifest_category ON assets_manifest (category)"
+      ]
+    },
+    {
+      "name": "car_baselines",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "team_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "teams"
+        },
+        {
+          "name": "baseline_version",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "aero_downforce",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "aero_efficiency",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "mechanical_grip",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "chassis_balance",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "braking_performance",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tyre_preservation",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "thermal_management",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "chassis_reliability",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_car_baselines_team_id ON car_baselines (team_id)"
+      ]
+    },
+    {
+      "name": "driver_attributes",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "driver_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "drivers"
+        },
+        {
+          "name": "qualifying_pace",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "race_pace",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "consistency",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "starts",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "overtaking",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "defending",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "wet_weather",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tyre_management",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "adaptability",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "technical_feedback",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pressure_control",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "teamwork",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "potential_max",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "development_rate",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "personality",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_driver_attributes_driver_id ON driver_attributes (driver_id)"
+      ]
+    },
+    {
+      "name": "team_attributes",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "team_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "teams"
+        },
+        {
+          "name": "design_center_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cfd_cluster_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "wind_tunnel_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "industrial_structure_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "factory_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "operations_center_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pit_stop_center_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "simulator_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "driver_academy_level",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_team_attributes_team_id ON team_attributes (team_id)"
+      ]
+    },
+    {
+      "name": "manager_modifiers",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "manager_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "managers"
+        },
+        {
+          "name": "slot",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "modifier_target",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "modifier_value",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "modifier_kind",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "unit",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "mechanic_status",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "source_image",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "raw",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_manager_modifiers_manager_slot ON manager_modifiers (manager_id, slot)"
+      ]
+    },
+    {
+      "name": "import_logs",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "run_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "catalog",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "source_file",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "rows_read",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "columns_detected",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "rows_imported",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "warnings",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "errors",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "messages",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "started_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "finished_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_import_logs_run_catalog ON import_logs (run_id, catalog)",
+        "CREATE INDEX idx_import_logs_created ON import_logs (created DESC)"
       ]
     }
   ]
